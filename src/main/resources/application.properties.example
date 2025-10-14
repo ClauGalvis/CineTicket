@@ -1,0 +1,121 @@
+# ======================================================================
+# APPLICATION.PROPERTIES.EXAMPLE - CineTicket
+# ======================================================================
+# Archivo de ejemplo sin credenciales reales.
+# Cada desarrollador debe copiar este archivo como "application.properties"
+# y completar sus propios valores locales antes de ejecutar el proyecto.
+# ======================================================================
+
+
+# ======================================================================
+# CONFIGURACIÓN DE LA BASE DE DATOS
+# ======================================================================
+
+# URL de conexión a PostgreSQL
+# Formato: jdbc:postgresql://<host>:<puerto>/<nombre_base_datos>
+db.url=jdbc:postgresql://localhost:5433/cineticket      # Cambiar puerto de ser necesario
+
+# Credenciales de acceso a la base de datos
+db.username=postgres
+db.password=        # Tu contraseña aqui
+
+# Pool de Conexiones HikariCP
+db.pool.size.min=5
+db.pool.size.max=20
+db.connection.timeout=30000     # 30 segundos
+db.idle.timeout=600000          # 10 minutos
+db.max.lifetime=1800000         # 30 minutos
+db.pool.name=CineTicketPool
+
+
+# ======================================================================
+# CONFIGURACIÓN DE SEGURIDAD
+# ======================================================================
+
+# Factor de costo para BCrypt (8–12 recomendado)
+bcrypt.rounds=12
+
+# Tiempo de sesión en minutos
+session.timeout=30
+
+
+# ======================================================================
+# CONFIGURACIÓN DE PDF
+# ======================================================================
+
+# Directorio donde se guardarán los comprobantes PDF
+pdf.output.directory=./comprobantes/
+
+# Prefijo para nombres de archivos PDF
+pdf.filename.prefix=comprobante_
+
+# Incluir fecha en nombre de archivo
+pdf.include.date=true
+
+
+# ======================================================================
+# CONFIGURACIÓN DE LOGGING
+# ======================================================================
+
+# Nivel de logging (TRACE, DEBUG, INFO, WARN, ERROR)
+log.level=INFO
+
+# Ruta del archivo de log
+log.file.path=./logs/cineticket.log
+
+# Tamaño máximo del archivo de log antes de rotar (MB)
+log.file.max.size=10
+
+# Número de archivos de log a mantener
+log.file.max.history=30
+
+
+# ======================================================================
+# CONFIGURACIÓN DE LA APLICACIÓN
+# ======================================================================
+
+app.name=CineTicket
+app.version=1.0.0
+app.author=Claudia Patricia Galvis Jiménez
+
+
+# ======================================================================
+# CONFIGURACIÓN DE LA INTERFAZ
+# ======================================================================
+
+ui.window.width=1200
+ui.window.height=800
+ui.window.resizable=true
+ui.window.maximized=false
+ui.theme=light
+
+
+# ======================================================================
+# CONFIGURACIÓN DE NEGOCIO
+# ======================================================================
+
+business.max.tickets.per.purchase=5
+business.cancel.time.limit=30
+
+# Variables planificadas para futuras versiones
+business.discounts.enabled=false
+business.discount.student=10
+
+
+# ======================================================================
+# CONFIGURACIÓN DE CORREO (PLAN FUTURO)
+# ======================================================================
+
+# Habilitar envío de correos
+mail.enabled=false
+
+# Servidor SMTP
+mail.smtp.host=smtp.gmail.com
+mail.smtp.port=587
+
+# Usuario y contraseña del correo (completar si se usa)
+mail.username=
+mail.password=
+
+# Habilitar TLS
+mail.smtp.starttls.enable=true

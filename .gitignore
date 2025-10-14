@@ -12,6 +12,15 @@ target/
 *.iml
 *.ipr
 
+### CONFIGURACIÓN LOCAL Y SENSIBLE ###
+
+# Archivos de configuración que contienen contraseñas o rutas locales
+src/main/resources/application.properties
+
+# Logs, comprobantes, o archivos generados localmente
+logs/
+comprobantes/
+
 ### Eclipse ###
 .apt_generated
 .classpath
