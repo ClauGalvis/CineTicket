@@ -81,15 +81,16 @@ END $$;
 
 -- Combos de confitería
 INSERT INTO combo_confiteria (nombre_combo, descripcion, precio, categoria) VALUES
- ('Combo Clásico', 'Palomitas medianas + Gaseosa mediana', 8.50, 'Combos'),
- ('Combo Grande', 'Palomitas grandes + Gaseosa grande + Nachos', 12.00, 'Combos'),
- ('Combo Dulce', 'Chocolate + Galletas + Gaseosa pequeña', 7.00, 'Combos'),
- ('Palomitas Grandes', 'Palomitas de maíz tamaño grande', 5.50, 'Snacks'),
- ('Nachos con Queso', 'Nachos con salsa de queso', 4.50, 'Snacks'),
- ('Gaseosa Grande', 'Bebida gaseosa 32oz', 3.50, 'Bebidas'),
- ('Agua Embotellada', 'Agua mineral 500ml', 2.00, 'Bebidas'),
- ('Combo Familiar', '2 Palomitas grandes + 4 Gaseosas', 18.00, 'Combos')
+ ('Combo Clásico', 'Palomitas medianas + Gaseosa mediana', 18000, 'Combos'),
+ ('Combo Grande', 'Palomitas grandes + Gaseosa grande + Nachos', 25000, 'Combos'),
+ ('Combo Dulce', 'Chocolate + Galletas + Gaseosa pequeña', 15000, 'Combos'),
+ ('Palomitas Grandes', 'Palomitas de maíz tamaño grande', 10000, 'Snacks'),
+ ('Nachos con Queso', 'Nachos con salsa de queso', 8000, 'Snacks'),
+ ('Gaseosa Grande', 'Bebida gaseosa 32oz', 6000, 'Bebidas'),
+ ('Agua Embotellada', 'Agua mineral 500ml', 4000, 'Bebidas'),
+ ('Combo Familiar', '2 Palomitas grandes + 4 Gaseosas', 40000, 'Combos')
 ON CONFLICT (nombre_combo) DO NOTHING;
+
 
 -- Películas demo
 INSERT INTO pelicula (titulo, duracion_minutos, clasificacion, sinopsis, fecha_estreno, activa)
