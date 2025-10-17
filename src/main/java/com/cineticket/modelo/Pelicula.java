@@ -1,9 +1,7 @@
 package com.cineticket.modelo;
 
 import com.cineticket.enums.Clasificacion;
-
-import java.time.*;
-import java.util.*;
+import java.time.LocalDate;
 
 /**
  * Representa una película dentro del sistema CineTicket.
@@ -21,13 +19,11 @@ public class Pelicula {
     private String imagenUrl;
     private LocalDate fechaEstreno;
     private boolean activa;
-    private List<Genero> generos;
 
     // --- Constructores ---
     /** Constructor por defecto: crea una película activa por defecto */
     public Pelicula() {
         this.activa = true;
-
     }
 
     /** Constructor para crear una nueva película (sin ID aún persistido) */
@@ -45,8 +41,7 @@ public class Pelicula {
     /** Constructor completo: se usa al hidratar desde la base de datos */
     public Pelicula(Integer idPelicula, String titulo, Integer duracionMinutos,
                     Clasificacion clasificacion, String sinopsis,
-                    String imagenUrl, LocalDate fechaEstreno,
-                    boolean activa, List<Genero> generos) {
+                    String imagenUrl, LocalDate fechaEstreno, boolean activa) {
         this.idPelicula = idPelicula;
         this.titulo = titulo;
         this.duracionMinutos = duracionMinutos;
@@ -55,32 +50,22 @@ public class Pelicula {
         this.imagenUrl = imagenUrl;
         this.fechaEstreno = fechaEstreno;
         this.activa = activa;
-        this.generos = generos != null ? generos : new ArrayList<>();
     }
-    // --- Metodos de utilidad ---
-    /** Devuelve la duracion formateada como "2h 15min"*/
+
+    // --- Métodos de utilidad ---
+    /** Devuelve la duración formateada como "2h 15min" */
     public String getDuracionFormateada() {
         int horas = duracionMinutos / 60;
         int minutos = duracionMinutos % 60;
-        return String.format("%dh %02dmin",horas, minutos);
+        return String.format("%dh %02dmin", horas, minutos);
     }
 
-    /** Indica si la pelicula esta activa en cartelera */
+    /** Indica si la película está activa en cartelera */
     public boolean estaActiva() {
         return activa;
     }
 
-    public void agregarGenero(Genero genero) {
-        if (!generos.contains(genero)) {
-            generos.add(genero);
-        }
-    }
-
-    public void eliminarGenero(Genero genero) {
-        generos.remove(genero);
-    }
-
-    // --- Getters y Setters
+    // --- Getters y Setters ---
     public Integer getIdPelicula() {
         return idPelicula;
     }
@@ -143,13 +128,5 @@ public class Pelicula {
 
     public void setActiva(boolean activa) {
         this.activa = activa;
-    }
-
-    public List<Genero> getGeneros() {
-        return generos;
-    }
-
-    public void setGeneros(List<Genero> generos) {
-        this.generos = generos;
     }
 }
