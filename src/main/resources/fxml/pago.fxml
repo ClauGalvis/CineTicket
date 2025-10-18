@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.cineticket.controlador.PagoController"
+            prefWidth="900" prefHeight="600">
+
+    <top>
+        <VBox spacing="8">
+            <padding>
+                <Insets top="10" left="10" right="10" bottom="10"/>
+            </padding>
+            <Label text="Pago" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+            <HBox spacing="20">
+                <Label fx:id="lblResumenEntradas" text="0 entradas - $0.00"/>
+                <Label fx:id="lblResumenConfiteria" text="0 combos - $0.00"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblTotalGeneral" style="-fx-font-weight:bold;" text="TOTAL: $0.00"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <GridPane hgap="12" vgap="12">
+            <padding>
+                <Insets top="10" left="10" right="10" bottom="10"/>
+            </padding>
+            <columnConstraints>
+                <ColumnConstraints percentWidth="35"/>
+                <ColumnConstraints percentWidth="65"/>
+            </columnConstraints>
+
+            <!-- Métodos de pago -->
+            <VBox GridPane.columnIndex="0" spacing="10">
+                <Label text="Método de pago"/>
+                <RadioButton fx:id="rbPSE" text="PSE" selected="true"/>
+                <RadioButton fx:id="rbTransferencia" text="Transferencia"/>
+            </VBox>
+
+            <!-- Resumen detallado -->
+            <VBox GridPane.columnIndex="1" spacing="10">
+                <Label text="Resumen de compra"/>
+                <ListView fx:id="listViewResumen" prefHeight="420"/>
+            </VBox>
+        </GridPane>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <padding>
+                <Insets top="10" left="10" right="10" bottom="10"/>
+            </padding>
+            <Button fx:id="btnCancelar" text="Cancelar" onAction="#cancelar"/>
+            <Button fx:id="btnConfirmar" text="Confirmar" onAction="#confirmarCompra" defaultButton="true"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cineticket.controlador.LoginController" prefWidth="900" prefHeight="600">
+    <center>
+        <VBox alignment="CENTER" spacing="12.0">
+            <Label text="CineTicket" style="-fx-font-size: 26; -fx-font-weight: bold;" />
+            <TextField fx:id="txtUsuario" promptText="Usuario" maxWidth="320" />
+            <PasswordField fx:id="txtContrasena" promptText="Contraseña" maxWidth="320" />
+            <Button text="Iniciar sesión" onAction="#manejarInicioSesion" maxWidth="320" />
+            <Hyperlink text="Registrarme" onAction="#abrirRegistro" />
+        </VBox>
+    </center>
+</BorderPane>

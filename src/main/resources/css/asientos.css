@@ -1,0 +1,17 @@
+.asiento-libre {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.asiento-ocupado {
+    -fx-background-color: #9E9E9E;
+    -fx-text-fill: #333;
+    -fx-cursor: not-allowed;
+}
+
+.asiento-seleccionado {
+    -fx-background-color: #2196F3;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.cineticket.controlador.ConfiteriaController"
+            prefWidth="960" prefHeight="600">
+
+    <top>
+        <HBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label text="Confitería" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+            <Pane HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblTotalConfiteria" text="Total confitería: $ 0.00" style="-fx-font-weight: bold;"/>
+        </HBox>
+    </top>
+
+    <center>
+        <GridPane hgap="12" vgap="12">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <columnConstraints>
+                <ColumnConstraints percentWidth="35"/>
+                <ColumnConstraints percentWidth="35"/>
+                <ColumnConstraints percentWidth="30"/>
+            </columnConstraints>
+
+            <!-- Lista de combos -->
+            <VBox GridPane.columnIndex="0" spacing="8">
+                <Label text="Disponibles"/>
+                <ListView fx:id="listViewCombos" prefHeight="480"/>
+            </VBox>
+
+            <!-- Detalle del combo -->
+            <VBox GridPane.columnIndex="1" spacing="8">
+                <Label text="Detalle"/>
+                <ImageView fx:id="imgCombo" fitWidth="280" fitHeight="180" preserveRatio="true"/>
+                <Label fx:id="lblNombreCombo" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                <Label fx:id="lblDescripcion" wrapText="true"/>
+                <Label fx:id="lblPrecio" style="-fx-font-weight: bold;"/>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="Cantidad:"/>
+                    <Spinner fx:id="spinnerCantidad" prefWidth="100"/>
+                    <Button fx:id="btnAgregar" text="Agregar" onAction="#agregarAlCarrito"/>
+                </HBox>
+            </VBox>
+
+            <!-- Carrito -->
+            <VBox GridPane.columnIndex="2" spacing="8">
+                <Label text="Carrito (doble clic para quitar)"/>
+                <ListView fx:id="listViewCarrito" prefHeight="480"/>
+            </VBox>
+        </GridPane>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Button fx:id="btnContinuar" text="Continuar" onAction="#continuar" defaultButton="true"/>
+        </HBox>
+    </bottom>
+</BorderPane>

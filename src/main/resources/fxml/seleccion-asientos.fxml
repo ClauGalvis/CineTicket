@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cineticket.controlador.SeleccionAsientosController"
+            stylesheets="@/css/asientos.css"
+            prefWidth="900" prefHeight="620">
+
+    <top>
+        <VBox spacing="6">
+            <padding><Insets topRightBottomLeft="12"/></padding>
+            <children>
+                <HBox spacing="10">
+                    <children>
+                        <Label text="Selección de Asientos" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+                        <Pane HBox.hgrow="ALWAYS"/>
+                        <Button text="Cancelar" onAction="#cancelar"/>
+                    </children>
+                </HBox>
+                <GridPane hgap="12" vgap="6">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="12"/>
+                        <ColumnConstraints percentWidth="38"/>
+                        <ColumnConstraints percentWidth="12"/>
+                        <ColumnConstraints percentWidth="38"/>
+                    </columnConstraints>
+                    <children>
+                        <Label text="Película:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label fx:id="lblPelicula" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                        <Label text="Sala:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                        <Label fx:id="lblSala" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+                        <Label text="Horario:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <Label fx:id="lblFuncion" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    </children>
+                </GridPane>
+            </children>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="10">
+            <padding><Insets topRightBottomLeft="12"/></padding>
+            <children>
+                <Label text="Pantalla" style="-fx-alignment: center; -fx-background-color: #eee; -fx-padding: 6;"/>
+                <ScrollPane fitToWidth="true" fitToHeight="true" prefHeight="420">
+                    <content>
+                        <GridPane fx:id="gridAsientos"/>
+                    </content>
+                </ScrollPane>
+            </children>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox spacing="16">
+            <padding><Insets topRightBottomLeft="12"/></padding>
+            <children>
+                <Label fx:id="lblAsientosSeleccionados" text="Seleccionados: (0/5)"/>
+                <Pane HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblTotal" text="Total: $ 0"/>
+                <Button fx:id="btnContinuar" text="Continuar" onAction="#continuar"/>
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>
