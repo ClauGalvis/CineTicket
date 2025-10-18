@@ -1,40 +1,36 @@
 -- =========================================================
--- CineTicket - 03_seed.sql
--- Datos semilla: admin, géneros, salas, asientos, combos, películas
--- Seguro de ejecutar múltiples veces (usa ON CONFLICT donde aplica)
+-- CineTicket - 03_seed_minimo.sql
+-- Semillas mínimas para probar el flujo de compra
+--  - Usuario admin demo
+--  - 4 salas (con asientos autogenerados)
+--  - 3 películas (2 funciones c/u)
+--  - 5 combos de confitería
+-- Idempotente: se puede ejecutar varias veces
 -- =========================================================
-
 BEGIN;
 
--- (Opcional)
--- SET search_path TO cineticket, public;
-
--- Usuario admin (hash Bcrypt de "Admin123" a modo de demo)
+-- ===== Usuario admin demo (pass: Admin123) =====
+-- Hash Bcrypt de "Admin123" (solo demo)
 INSERT INTO usuario (nombre_completo, correo_electronico, nombre_usuario, contrasena_hash, rol)
-VALUES ('Administrador del Sistema', 'admin@cineticket.com', 'admin',
-        '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIqn8nOKDm',
+VALUES ('Administrador', 'admin@cineticket.com', 'admin',
+        '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYIqn8nOKDm',  -- "Admin123"
         'ADMIN')
-ON CONFLICT (correo_electronico) DO NOTHING;
+ON CONFLICT DO NOTHING;
 
--- Géneros
+-- ===== Géneros mínimos (opcional, por si los usas en cartelera) =====
 INSERT INTO genero (nombre_genero, descripcion) VALUES
  ('Acción','Películas de alta adrenalina'),
  ('Aventura','Historias épicas y viajes'),
- ('Ciencia Ficción','Tecnología y futuros alternativos'),
- ('Comedia','Películas humorísticas'),
- ('Drama','Historias emotivas y realistas'),
- ('Terror','Películas de miedo'),
- ('Suspenso','Thrillers y misterio'),
- ('Animación','Películas animadas'),
- ('Romance','Historias de amor'),
- ('Documental','Contenido educativo y real')
+ ('Ciencia Ficción','Tecnología y futuros alternativos')
 ON CONFLICT (nombre_genero) DO NOTHING;
 
--- Salas
+-- ===== Salas (4 salas) =====
+-- Usa tamaños pequeños para que sea visible en UI
 INSERT INTO sala (nombre_sala, capacidad_total, filas, columnas) VALUES
  ('Sala 1', 60, 6, 10),
- ('Sala 2', 80, 8, 10),
- ('Sala VIP', 40, 5, 8)
+ ('Sala 2', 60, 6, 10),
+ ('Sala 3', 80, 8, 10),
+ ('Sala 4', 40, 5, 8)
 ON CONFLICT (nombre_sala) DO NOTHING;
 
 -- ==== Utilidad para etiquetar filas: A..Z, AA.. (1-based) ====
@@ -55,16 +51,13 @@ END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
 -- ==== Generación de asientos por sala según filas/columnas ====
--- Limpia y repuebla cada sala si ya existe (idempotente por (sala_id,fila,numero))
+-- Inserta si no existen (idempotente por (sala_id,fila,numero))
 DO $$
 DECLARE
   r RECORD;
 BEGIN
   FOR r IN (SELECT id_sala, filas, columnas FROM sala) LOOP
-    -- opcional: si quieres regenerar siempre, descomenta:
-    -- DELETE FROM asiento WHERE sala_id = r.id_sala;
-
-    INSERT INTO asiento (sala_id, fila, numero, tipo_asiento)
+    INSERT INTO asiento (sala_id, fila, numero, tipo_asiento, activo)
     SELECT r.id_sala,
            label_fila(fi) AS fila,
            co AS numero,
@@ -72,108 +65,116 @@ BEGIN
              WHEN fi = 1 THEN 'PREFERENCIAL'::tipo_asiento
              WHEN fi >= GREATEST(r.filas - 1, 2) THEN 'VIP'::tipo_asiento
              ELSE 'REGULAR'::tipo_asiento
-           END
+           END,
+           TRUE
     FROM generate_series(1, r.filas)  AS fi
     CROSS JOIN generate_series(1, r.columnas) AS co
     ON CONFLICT (sala_id, fila, numero) DO NOTHING;
   END LOOP;
 END $$;
 
--- Combos de confitería
-INSERT INTO combo_confiteria (nombre_combo, descripcion, precio, categoria) VALUES
- ('Combo Clásico', 'Palomitas medianas + Gaseosa mediana', 18000, 'Combos'),
- ('Combo Grande', 'Palomitas grandes + Gaseosa grande + Nachos', 25000, 'Combos'),
- ('Combo Dulce', 'Chocolate + Galletas + Gaseosa pequeña', 15000, 'Combos'),
- ('Palomitas Grandes', 'Palomitas de maíz tamaño grande', 10000, 'Snacks'),
- ('Nachos con Queso', 'Nachos con salsa de queso', 8000, 'Snacks'),
- ('Gaseosa Grande', 'Bebida gaseosa 32oz', 6000, 'Bebidas'),
- ('Agua Embotellada', 'Agua mineral 500ml', 4000, 'Bebidas'),
- ('Combo Familiar', '2 Palomitas grandes + 4 Gaseosas', 40000, 'Combos')
-ON CONFLICT (nombre_combo) DO NOTHING;
-
-
--- Películas demo
+-- ===== Películas (3) =====
 INSERT INTO pelicula (titulo, duracion_minutos, clasificacion, sinopsis, fecha_estreno, activa)
 VALUES
--- 🎬 Acción / Aventura / Ciencia ficción
-('Avatar 3', 190, '12+', 'Jake y Neytiri enfrentan nuevos desafíos en Pandora junto a su familia.', '2025-12-19', TRUE),
-('Misión Imposible – Dead Reckoning Part Two', 160, '15+', 'Ethan Hunt continúa su lucha contra una inteligencia artificial que amenaza al mundo.', '2025-05-23', TRUE),
-('Dune: Part Two', 166, '12+', 'Paul Atreides une fuerzas con los Fremen para vengar a su familia y cambiar el destino del universo.', '2024-03-01', TRUE),
-('Oppenheimer', 180, '15+', 'La historia del científico que lideró el desarrollo de la bomba atómica.', '2023-07-21', TRUE),
-('The Batman', 176, '15+', 'Bruce Wayne investiga a un asesino en una Gotham corrupta.', '2022-03-04', TRUE),
-
--- 🎞️ Animación (DreamWorks / Ghibli / Pixar)
-('Inside Out 2', 100, 'T', 'Riley enfrenta la adolescencia con nuevas emociones como la Ansiedad y la Envidia.', '2024-06-14', TRUE),
-('How to Train Your Dragon: The Hidden World', 104, 'T', 'Hipo y Chimuelo descubren un mundo oculto mientras buscan proteger a su tribu.', '2019-02-22', TRUE),
-('Kung Fu Panda 4', 95, 'T', 'Po busca su sucesor mientras enfrenta a una nueva villana que puede robar los poderes de sus enemigos.', '2024-03-08', TRUE),
-('Puss in Boots: The Last Wish', 102, 'T', 'El Gato con Botas se embarca en una aventura para recuperar sus vidas perdidas.', '2022-12-21', TRUE),
-('Spirited Away', 125, 'T', 'Una niña entra a un mundo mágico donde debe rescatar a sus padres transformados en cerdos.', '2001-07-20', TRUE),
-('My Neighbor Totoro', 86, 'T', 'Dos hermanas descubren a un espíritu del bosque mientras se adaptan a su nuevo hogar.', '1988-04-16', TRUE),
-('Howl’s Moving Castle', 119, 'T', 'Sophie es transformada en anciana por una maldición y busca ayuda en el misterioso castillo de Howl.', '2004-11-20', TRUE),
-('The Boy and the Heron', 124, '12+', 'Un joven descubre un mundo fantástico mientras lidia con la pérdida y el crecimiento.', '2023-07-14', TRUE),
-
--- 💕 Romance / Drama / Comedia
-('La La Land', 128, '12+', 'Una actriz y un músico luchan por sus sueños y su amor en Los Ángeles.', '2016-12-09', TRUE),
-('The Notebook', 123, '12+', 'Una historia de amor eterno contada a través de los años.', '2004-06-25', TRUE),
-('Barbie', 114, 'T', 'Barbie comienza a cuestionarse el sentido de su existencia y explora el mundo real.', '2023-07-21', TRUE),
-
--- 👻 Terror / Suspenso
-('A Quiet Place', 90, '15+', 'Una familia debe vivir en silencio para sobrevivir a criaturas que cazan por el sonido.', '2018-04-06', TRUE),
-('Get Out', 104, '15+', 'Un joven afroamericano descubre un inquietante secreto en la familia de su novia.', '2017-02-24', TRUE),
-('Parasite', 132, '15+', 'Una familia pobre se infiltra en la vida de una familia rica con consecuencias inesperadas.', '2019-05-30', TRUE)
+ ('Amanecer Galáctico', 130, '12+', 'Tripulación enfrenta un misterio a las afueras del sistema solar.', CURRENT_DATE, TRUE),
+ ('Ciudad Sombría',     118, '15+', 'Un detective persigue a un criminal en una urbe corrupta.',     CURRENT_DATE, TRUE),
+ ('Risas en Familia',    95, 'T',   'Una familia intenta unas vacaciones perfectas… casi.',            CURRENT_DATE, TRUE)
 ON CONFLICT DO NOTHING;
 
+-- (Opcional) Mapear géneros si quieres
+DO $$
+DECLARE
+  pid1 int; pid2 int; pid3 int;
+  g1 int; g2 int; g3 int;
+BEGIN
+  SELECT id_pelicula INTO pid1 FROM pelicula WHERE titulo='Amanecer Galáctico';
+  SELECT id_pelicula INTO pid2 FROM pelicula WHERE titulo='Ciudad Sombría';
+  SELECT id_pelicula INTO pid3 FROM pelicula WHERE titulo='Risas en Familia';
+  SELECT id_genero   INTO g1   FROM genero   WHERE nombre_genero='Ciencia Ficción';
+  SELECT id_genero   INTO g2   FROM genero   WHERE nombre_genero='Acción';
+  SELECT id_genero   INTO g3   FROM genero   WHERE nombre_genero='Aventura';
 
--- Mapear algunos géneros (asumiendo ids insertados en orden)
--- Si ya existen, ajusta los IDs según tu data real.
-INSERT INTO pelicula_genero (pelicula_id, genero_id) VALUES
--- Avatar 3
-(1,1),(1,2),(1,3),
--- Misión Imposible – Dead Reckoning Part Two
-(2,1),(2,7),
--- Dune: Part Two
-(3,1),(3,2),(3,3),(3,5),
--- Oppenheimer
-(4,5),
--- The Batman
-(5,1),(5,7),
+  IF pid1 IS NOT NULL AND g1 IS NOT NULL THEN
+    INSERT INTO pelicula_genero(pelicula_id,genero_id) VALUES (pid1,g1) ON CONFLICT DO NOTHING;
+  END IF;
+  IF pid2 IS NOT NULL AND g2 IS NOT NULL THEN
+    INSERT INTO pelicula_genero(pelicula_id,genero_id) VALUES (pid2,g2) ON CONFLICT DO NOTHING;
+  END IF;
+  IF pid3 IS NOT NULL AND g3 IS NOT NULL THEN
+    INSERT INTO pelicula_genero(pelicula_id,genero_id) VALUES (pid3,g3) ON CONFLICT DO NOTHING;
+  END IF;
+END $$;
 
--- Inside Out 2
-(6,8),(6,5),(6,4),
--- How to Train Your Dragon: The Hidden World
-(7,8),(7,2),(7,1),
--- Kung Fu Panda 4
-(8,8),(8,2),(8,4),
--- Puss in Boots: The Last Wish
-(9,8),(9,2),(9,4),
--- Spirited Away
-(10,8),(10,2),(10,5),
--- My Neighbor Totoro
-(11,8),(11,2),(11,5),
--- Howl’s Moving Castle
-(12,8),(12,2),(12,9),(12,5),
--- The Boy and the Heron
-(13,8),(13,5),(13,2),
+-- ===== Funciones: 2 por película (horarios hoy 18:00 y 21:00) =====
+-- Evitamos solapes usando distintas salas o bloques 18-20 / 21-23
+DO $$
+DECLARE
+  p1 int; p2 int; p3 int;
+  s1 int; s2 int; s3 int; s4 int;
+  f_ini1 timestamp := (CURRENT_DATE + time '18:00');
+  f_fin1 timestamp := (CURRENT_DATE + time '20:00');
+  f_ini2 timestamp := (CURRENT_DATE + time '21:00');
+  f_fin2 timestamp := (CURRENT_DATE + time '23:00');
+BEGIN
+  SELECT id_pelicula INTO p1 FROM pelicula WHERE titulo='Amanecer Galáctico';
+  SELECT id_pelicula INTO p2 FROM pelicula WHERE titulo='Ciudad Sombría';
+  SELECT id_pelicula INTO p3 FROM pelicula WHERE titulo='Risas en Familia';
 
--- La La Land
-(14,9),(14,5),(14,4),
--- The Notebook
-(15,9),(15,5),
--- Barbie
-(16,8),(16,4),(16,5),
+  SELECT id_sala INTO s1 FROM sala WHERE nombre_sala='Sala 1';
+  SELECT id_sala INTO s2 FROM sala WHERE nombre_sala='Sala 2';
+  SELECT id_sala INTO s3 FROM sala WHERE nombre_sala='Sala 3';
+  SELECT id_sala INTO s4 FROM sala WHERE nombre_sala='Sala 4';
 
--- A Quiet Place
-(17,6),(17,7),
--- Get Out
-(18,6),(18,7),(18,5),
--- Parasite
-(19,5),(19,7)
-ON CONFLICT DO NOTHING;
+  -- Amanecer Galáctico
+  IF p1 IS NOT NULL AND s1 IS NOT NULL THEN
+    INSERT INTO funcion (pelicula_id, sala_id, fecha_hora_inicio, fecha_hora_fin, precio_entrada)
+    VALUES (p1, s1, f_ini1, f_fin1, 25000.00)
+    ON CONFLICT DO NOTHING;
+  END IF;
+  IF p1 IS NOT NULL AND s1 IS NOT NULL THEN
+    INSERT INTO funcion (pelicula_id, sala_id, fecha_hora_inicio, fecha_hora_fin, precio_entrada)
+    VALUES (p1, s1, f_ini2, f_fin2, 25000.00)
+    ON CONFLICT DO NOTHING;
+  END IF;
 
+  -- Ciudad Sombría
+  IF p2 IS NOT NULL AND s2 IS NOT NULL THEN
+    INSERT INTO funcion (pelicula_id, sala_id, fecha_hora_inicio, fecha_hora_fin, precio_entrada)
+    VALUES (p2, s2, f_ini1, f_fin1, 22000.00)
+    ON CONFLICT DO NOTHING;
+  END IF;
+  IF p2 IS NOT NULL AND s2 IS NOT NULL THEN
+    INSERT INTO funcion (pelicula_id, sala_id, fecha_hora_inicio, fecha_hora_fin, precio_entrada)
+    VALUES (p2, s2, f_ini2, f_fin2, 22000.00)
+    ON CONFLICT DO NOTHING;
+  END IF;
+
+  -- Risas en Familia
+  IF p3 IS NOT NULL AND s3 IS NOT NULL THEN
+    INSERT INTO funcion (pelicula_id, sala_id, fecha_hora_inicio, fecha_hora_fin, precio_entrada)
+    VALUES (p3, s3, f_ini1, f_fin1, 18000.00)
+    ON CONFLICT DO NOTHING;
+  END IF;
+  IF p3 IS NOT NULL AND s4 IS NOT NULL THEN
+    INSERT INTO funcion (pelicula_id, sala_id, fecha_hora_inicio, fecha_hora_fin, precio_entrada)
+    VALUES (p3, s4, f_ini2, f_fin2, 18000.00)
+    ON CONFLICT DO NOTHING;
+  END IF;
+END $$;
+
+-- ===== Combos de confitería (5) =====
+INSERT INTO combo_confiteria (nombre_combo, descripcion, precio, categoria, disponible)
+VALUES
+ ('Agua Embotellada', 'Agua mineral 500ml',                 4000,  'Bebidas', TRUE),
+ ('Gaseosa Grande',   'Bebida gaseosa 32oz',                6000,  'Bebidas', TRUE),
+ ('Nachos con Queso', 'Nachos con salsa de queso',          8000,  'Snacks',  TRUE),
+ ('Combo Clásico',    'Palomitas medianas + Gaseosa med.', 18000,  'Combos',  TRUE),
+ ('Combo Familiar',   '2 Palomitas grandes + 4 Gaseosas',  40000,  'Combos',  TRUE)
+ON CONFLICT (nombre_combo) DO NOTHING;
 
 COMMIT;
 
--- ====== Consultas rápidas de verificación (opcional) ======
--- SELECT table_name, COUNT(*) AS filas FROM information_schema.columns
---  WHERE table_schema = 'public' AND table_name IN ('usuario','genero','pelicula','sala','asiento','funcion','compra','entrada','combo_confiteria','compra_confiteria')
---  GROUP BY table_name ORDER BY table_name;
+-- Tips:
+-- 1) Si ejecutas esto cerca de medianoche y quieres horarios "mañana",
+--    cambia CURRENT_DATE por (CURRENT_DATE + 1).
+-- 2) Si cambias filas/columnas de una sala, vuelve a correr el bloque de asientos.
