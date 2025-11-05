@@ -143,6 +143,75 @@ public class CompraService {
         return compraId;
     }
 
+    /** Cancela una compra CONFIRMADA si la función aún no ha iniciado.
+     *  Efectos en BD (atómico si tus DAO comparten la misma conexión/tx):
+     *   - compra: estado_compra=CANCELADA, fecha_cancelacion=now()
+     *   - entradas: estado_entrada=CANCELADA
+     *  Retorna true si se aplicaron cambios.
+     */
+    public boolean cancelarCompra(Integer compraId) {
+        if (compraId == null) throw new ValidacionException("compraId requerido.");
+
+        // 1) Cargar compra
+        Compra compra = compraDAO.buscarPorId(compraId);
+        if (compra == null) throw new ValidacionException("Compra no encontrada.");
+
+        // 2) Cargar entradas y función asociada
+        List<Entrada> entradas = entradaDAO.listarPorCompra(compraId);
+        if (entradas == null || entradas.isEmpty()) {
+            // No hay entradas (caso raro). Sólo permitir si sigue CONFIRMADA.
+            if (!compra.estaConfirmada()) {
+                throw new ValidacionException("La compra no está en estado CONFIRMADA.");
+            }
+            // Cancelar sólo la compra.
+            compra.setEstadoCompra(EstadoCompra.CANCELADA);
+            compra.setFechaCancelacion(LocalDateTime.now());
+            return compraDAO.actualizar(compra);
+        }
+
+        Integer funcionId = entradas.get(0).getFuncionId();
+        if (funcionId == null) throw new ValidacionException("Compra sin función asociada.");
+        Funcion funcion = funcionDAO.buscarPorId(funcionId);
+        if (funcion == null) throw new ValidacionException("Función asociada no encontrada.");
+
+        // 3) Reglas de negocio
+        validarCompraCancelable(compra, funcion);
+
+        // 4) Persistir cambios (idealmente dentro de una misma transacción)
+        // 4.1 Compra -> CANCELADA
+        compra.setEstadoCompra(EstadoCompra.CANCELADA);
+        compra.setFechaCancelacion(LocalDateTime.now());
+        boolean okCompra = compraDAO.actualizar(compra);
+
+        // 4.2 Entradas -> CANCELADA (bulk)
+        boolean okEntradas = entradaDAO.cancelarEntradasDeCompra(compraId);
+
+        if (!okCompra || !okEntradas) {
+            throw new ValidacionException("No fue posible cancelar completamente la compra.");
+        }
+
+        // (Opcional) Si manejas locks/reservas aparte de las entradas, podrías liberar aquí:
+        // reservaService.liberarAsientos(funcionId, entradas.stream().map(Entrada::getAsientoId).toList());
+
+        return true;
+    }
+
+    /** Regla: sólo compras CONFIRMADAS y con función futura se pueden cancelar. */
+    private void validarCompraCancelable(Compra compra, Funcion funcion) {
+        if (!compra.estaConfirmada()) {
+            throw new ValidacionException("La compra ya fue cancelada o no está CONFIRMADA.");
+        }
+        LocalDateTime ahora = LocalDateTime.now();
+        LocalDateTime inicio = funcion.getFechaHoraInicio();
+        if (inicio == null) {
+            throw new ValidacionException("La función no tiene fecha de inicio definida.");
+        }
+        if (!ahora.isBefore(inicio)) {
+            throw new ValidacionException("La función ya inició o finalizó; no se puede cancelar.");
+        }
+    }
+
+
     /** Util: suma totales y deja totalGeneral para que lo calcule la BD (STORED). */
     void calcularTotales(Compra compra, List<Entrada> entradas, List<CompraConfiteria> items) {
         BigDecimal totalEntradas = entradas.stream()
