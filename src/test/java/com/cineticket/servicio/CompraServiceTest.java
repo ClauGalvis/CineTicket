@@ -7,6 +7,7 @@ import com.cineticket.dao.FuncionDAO;
 import com.cineticket.enums.EstadoCompra;
 import com.cineticket.enums.EstadoEntrada;
 import com.cineticket.enums.MetodoPago;
+import com.cineticket.excepcion.*;
 import com.cineticket.modelo.Compra;
 import com.cineticket.modelo.CompraConfiteria;
 import com.cineticket.modelo.Entrada;
@@ -184,4 +185,147 @@ class CompraServiceTest {
         assertNotNull(compra.getRutaComprobantePdf());
         assertTrue(compra.getRutaComprobantePdf().startsWith("tmp/comprobante_"));
     }
+
+    // =============== Tests cancelarCompra ===============
+
+    @Test
+    void cancelarCompra_ok_funcionFutura_cancelaCompraYEntradas() {
+        // --- Arrange ---
+        Integer compraId = 123;
+
+        // Compra CONFIRMADA
+        Compra compra = new Compra();
+        compra.setIdCompra(compraId);
+        compra.setEstadoCompra(EstadoCompra.CONFIRMADA);
+
+        // Entrada asociada a función
+        Entrada e = new Entrada();
+        e.setCompraId(compraId);
+        e.setFuncionId(5);
+
+        // Función en el futuro (se puede cancelar)
+        Funcion funcion = new Funcion();
+        funcion.setIdFuncion(5);
+        funcion.setFechaHoraInicio(LocalDateTime.now().plusHours(2));
+        funcion.setFechaHoraFin(LocalDateTime.now().plusHours(4));
+
+        when(compraDAO.buscarPorId(compraId)).thenReturn(compra);
+        when(entradaDAO.listarPorCompra(compraId)).thenReturn(List.of(e));
+        when(funcionDAO.buscarPorId(5)).thenReturn(funcion);
+        when(compraDAO.actualizar(any(Compra.class))).thenReturn(true);
+        when(entradaDAO.cancelarEntradasDeCompra(compraId)).thenReturn(true);
+
+        ArgumentCaptor<Compra> compraCaptor = ArgumentCaptor.forClass(Compra.class);
+
+        // --- Act ---
+        boolean result = service.cancelarCompra(compraId);
+
+        // --- Assert ---
+        assertTrue(result);
+        verify(compraDAO).actualizar(compraCaptor.capture());
+        verify(entradaDAO).cancelarEntradasDeCompra(compraId);
+
+        Compra actualizada = compraCaptor.getValue();
+        assertEquals(EstadoCompra.CANCELADA, actualizada.getEstadoCompra());
+        assertNotNull(actualizada.getFechaCancelacion());
+    }
+
+    @Test
+    void cancelarCompra_yaCancelada_lanzaValidacionException() {
+        // --- Arrange ---
+        Integer compraId = 200;
+
+        Compra compra = new Compra();
+        compra.setIdCompra(compraId);
+        compra.setEstadoCompra(EstadoCompra.CANCELADA); // ya cancelada
+
+        Entrada e = new Entrada();
+        e.setCompraId(compraId);
+        e.setFuncionId(9);
+
+        Funcion funcion = new Funcion();
+        funcion.setIdFuncion(9);
+        funcion.setFechaHoraInicio(LocalDateTime.now().plusHours(1)); // irrelevante, igual falla por estado
+
+        when(compraDAO.buscarPorId(compraId)).thenReturn(compra);
+        when(entradaDAO.listarPorCompra(compraId)).thenReturn(List.of(e));
+        when(funcionDAO.buscarPorId(9)).thenReturn(funcion);
+
+        // --- Act & Assert ---
+        assertThrows(ValidacionException.class, () -> service.cancelarCompra(compraId));
+
+        verify(compraDAO, never()).actualizar(any());
+        verify(entradaDAO, never()).cancelarEntradasDeCompra(anyInt());
+    }
+
+    @Test
+    void cancelarCompra_funcionYaInicio_lanzaValidacionException() {
+        // --- Arrange ---
+        Integer compraId = 300;
+
+        Compra compra = new Compra();
+        compra.setIdCompra(compraId);
+        compra.setEstadoCompra(EstadoCompra.CONFIRMADA);
+
+        Entrada e = new Entrada();
+        e.setCompraId(compraId);
+        e.setFuncionId(7);
+
+        Funcion funcion = new Funcion();
+        funcion.setIdFuncion(7);
+        funcion.setFechaHoraInicio(LocalDateTime.now().minusMinutes(10)); // ya inició
+        funcion.setFechaHoraFin(LocalDateTime.now().plusHours(1));
+
+        when(compraDAO.buscarPorId(compraId)).thenReturn(compra);
+        when(entradaDAO.listarPorCompra(compraId)).thenReturn(List.of(e));
+        when(funcionDAO.buscarPorId(7)).thenReturn(funcion);
+
+        // --- Act & Assert ---
+        assertThrows(ValidacionException.class, () -> service.cancelarCompra(compraId));
+
+        verify(compraDAO, never()).actualizar(any());
+        verify(entradaDAO, never()).cancelarEntradasDeCompra(anyInt());
+    }
+
+    @Test
+    void cancelarCompra_sinEntradas_actualizaSoloCompra() {
+        // --- Arrange ---
+        Integer compraId = 400;
+
+        Compra compra = new Compra();
+        compra.setIdCompra(compraId);
+        compra.setEstadoCompra(EstadoCompra.CONFIRMADA);
+
+        when(compraDAO.buscarPorId(compraId)).thenReturn(compra);
+        when(entradaDAO.listarPorCompra(compraId)).thenReturn(List.of()); // sin entradas
+        when(compraDAO.actualizar(any(Compra.class))).thenReturn(true);
+
+        ArgumentCaptor<Compra> compraCaptor = ArgumentCaptor.forClass(Compra.class);
+
+        // --- Act ---
+        boolean result = service.cancelarCompra(compraId);
+
+        // --- Assert ---
+        assertTrue(result);
+        verify(compraDAO).actualizar(compraCaptor.capture());
+        verify(entradaDAO, never()).cancelarEntradasDeCompra(anyInt());
+
+        Compra actualizada = compraCaptor.getValue();
+        assertEquals(EstadoCompra.CANCELADA, actualizada.getEstadoCompra());
+        assertNotNull(actualizada.getFechaCancelacion());
+    }
+
+    @Test
+    void cancelarCompra_compraNoExiste_lanzaValidacionException() {
+        // --- Arrange ---
+        Integer compraId = 999;
+        when(compraDAO.buscarPorId(compraId)).thenReturn(null);
+
+        // --- Act & Assert ---
+        assertThrows(ValidacionException.class, () -> service.cancelarCompra(compraId));
+
+        verify(entradaDAO, never()).listarPorCompra(anyInt());
+        verify(compraDAO, never()).actualizar(any());
+    }
+
 }
