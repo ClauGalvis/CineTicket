@@ -1,61 +1,141 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.cineticket.controlador.PagoController"
-            prefWidth="900" prefHeight="600">
+            stylesheets="@../css/styles.css">
 
-    <top>
-        <VBox spacing="8">
+    <!-- ========== SIDEBAR IZQUIERDO ========== -->
+    <left>
+        <VBox spacing="20" styleClass="sidebar">
             <padding>
-                <Insets top="10" left="10" right="10" bottom="10"/>
+                <Insets top="24" right="12" bottom="12" left="12"/>
             </padding>
-            <Label text="Pago" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-            <HBox spacing="20">
-                <Label fx:id="lblResumenEntradas" text="0 entradas - $0.00"/>
-                <Label fx:id="lblResumenConfiteria" text="0 combos - $0.00"/>
-                <Pane HBox.hgrow="ALWAYS"/>
-                <Label fx:id="lblTotalGeneral" style="-fx-font-weight:bold;" text="TOTAL: $0.00"/>
-            </HBox>
+
+            <!-- Logo -->
+            <ImageView fitHeight="28" preserveRatio="true">
+                <image>
+                    <Image url="@../img/logo_cinetick.png"/>
+                </image>
+            </ImageView>
+
+            <!-- Navegación -->
+            <VBox spacing="8">
+                <Button text="Películas"
+                        styleClass="sidebar-button"/>
+                <Button text="Mis compras"
+                        styleClass="sidebar-button"
+                        onAction="#abrirHistorial"/>
+            </VBox>
         </VBox>
-    </top>
+    </left>
 
+    <!-- ========== CONTENIDO PRINCIPAL ========== -->
     <center>
-        <GridPane hgap="12" vgap="12">
+        <VBox spacing="24">
             <padding>
-                <Insets top="10" left="10" right="10" bottom="10"/>
+                <Insets top="24" right="32" bottom="24" left="32"/>
             </padding>
-            <columnConstraints>
-                <ColumnConstraints percentWidth="35"/>
-                <ColumnConstraints percentWidth="65"/>
-            </columnConstraints>
 
-            <!-- Métodos de pago -->
-            <VBox GridPane.columnIndex="0" spacing="10">
-                <Label text="Método de pago"/>
-                <RadioButton fx:id="rbPSE" text="PSE" selected="true"/>
-                <RadioButton fx:id="rbTransferencia" text="Transferencia"/>
-            </VBox>
+            <!-- Título de página -->
+            <Label text="Confirmar tu compra"
+                   styleClass="page-title"/>
 
-            <!-- Resumen detallado -->
-            <VBox GridPane.columnIndex="1" spacing="10">
-                <Label text="Resumen de compra"/>
-                <ListView fx:id="listViewResumen" prefHeight="420"/>
+            <!-- Dos tarjetas principales -->
+            <HBox spacing="24">
+                <!-- Tarjeta izquierda: Detalle de la compra -->
+                <VBox spacing="12"
+                      HBox.hgrow="ALWAYS"
+                      styleClass="card">
+                    <Label text="Detalle de la compra"
+                           styleClass="card-title"/>
+
+                    <!-- Listado de película, función, asientos, combos... -->
+                    <ListView fx:id="listViewResumen"
+                              prefHeight="260"
+                              styleClass="payment-list"/>
+                </VBox>
+
+                <!-- Tarjeta derecha: resumen y método de pago -->
+                <VBox spacing="16"
+                      HBox.hgrow="ALWAYS"
+                      styleClass="card">
+
+                    <Label text="Resumen de pago"
+                           styleClass="card-title"/>
+
+                    <!-- Totales -->
+                    <GridPane hgap="10" vgap="6">
+                        <columnConstraints>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                            <ColumnConstraints halignment="RIGHT"/>
+                        </columnConstraints>
+
+                        <Label text="Entradas"
+                               GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label fx:id="lblResumenEntradas"
+                               text="0 entradas - $0.00"
+                               GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                        <Label text="Confitería"
+                               GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <Label fx:id="lblResumenConfiteria"
+                               text="0 combos - $0.00"
+                               GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                        <Separator GridPane.rowIndex="2"
+                                   GridPane.columnIndex="0"
+                                   GridPane.columnSpan="2"/>
+
+                        <Label text="TOTAL"
+                               style="-fx-font-weight: bold;"
+                               GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <Label fx:id="lblTotalGeneral"
+                               text="TOTAL: $0.00"
+                               style="-fx-font-weight: bold;"
+                               GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                    </GridPane>
+
+                    <!-- Método de pago -->
+                    <VBox spacing="8">
+                        <Label text="Método de pago"/>
+                        <HBox spacing="16">
+                            <RadioButton fx:id="rbPSE"
+                                         text="PSE"/>
+                            <RadioButton fx:id="rbTransferencia"
+                                         text="Transferencia"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Botones -->
+                    <HBox spacing="12" alignment="CENTER_RIGHT">
+                        <Button fx:id="btnCancelar"
+                                text="Cancelar"
+                                onAction="#cancelar"
+                                styleClass="secondary-button"/>
+
+                        <Button fx:id="btnConfirmar"
+                                text="Pagar ahora"
+                                onAction="#confirmarCompra"
+                                defaultButton="true"
+                                styleClass="primary-button"/>
+                    </HBox>
+                </VBox>
+            </HBox>
+
+            <!-- Tarjeta de texto legal / instrucciones (parte de abajo del mockup) -->
+            <VBox spacing="6" styleClass="card">
+                <Label text="Revisa tu pedido cuidadosamente antes de continuar."
+                       styleClass="card-subtitle"/>
+                <Label wrapText="true"
+                       text="Al confirmar el pago, tus entradas y productos de confitería quedarán registrados. Para ver o descargar tu comprobante, utiliza la sección Mis compras."/>
             </VBox>
-        </GridPane>
+        </VBox>
     </center>
-
-    <bottom>
-        <HBox spacing="10" alignment="CENTER_RIGHT">
-            <padding>
-                <Insets top="10" left="10" right="10" bottom="10"/>
-            </padding>
-            <Button fx:id="btnCancelar" text="Cancelar" onAction="#cancelar"/>
-            <Button fx:id="btnConfirmar" text="Confirmar" onAction="#confirmarCompra" defaultButton="true"/>
-        </HBox>
-    </bottom>
-
 </BorderPane>

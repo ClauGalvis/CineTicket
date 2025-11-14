@@ -1,0 +1,663 @@
+/* Tarjeta blanca del login */
+.login-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.35), 30, 0.3, 0, 12);
+}
+
+/* Título Welcome Back */
+.login-title-main {
+    -fx-text-fill: #020617;
+    -fx-font-size: 24;
+    -fx-font-weight: bold;
+}
+
+/* Subtítulo */
+.login-subtitle-main {
+    -fx-text-fill: #6b7280;
+    -fx-font-size: 12;
+}
+
+/* Label de campos */
+.login-label {
+    -fx-text-fill: #111827;
+    -fx-font-size: 11;
+    -fx-font-weight: bold;
+}
+
+/* Inputs */
+.login-input {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 1;
+    -fx-padding: 8 10 8 10;
+    -fx-text-fill: #111827;
+    -fx-prompt-text-fill: #9ca3af;
+}
+
+.login-input:focused {
+    -fx-border-color: #111827;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.18), 10, 0.2, 0, 3);
+}
+
+/* Botón Login */
+.login-button {
+    -fx-background-color: #020617;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 8 0 8 0;
+    -fx-cursor: hand;
+}
+
+.login-button:hover {
+    -fx-background-color: #0b1120;
+}
+
+/* Link */
+.login-link {
+    -fx-text-fill: #1d4ed8;
+    -fx-underline: false;
+}
+
+.login-link:hover {
+    -fx-text-fill: #2563eb;
+    -fx-underline: true;
+}
+
+/* Mensaje de error */
+.login-error {
+    -fx-text-fill: #b91c1c;
+    -fx-font-size: 11;
+}
+
+/* === SIDEBAR === */
+.sidebar {
+    -fx-background-color: #f9fafb;
+    -fx-pref-width: 200;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 0 1 0 0;
+}
+
+.sidebar-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #374151;
+    -fx-font-size: 13;
+    -fx-padding: 8 12 8 12;
+    -fx-background-radius: 8;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: #e5e7eb;
+}
+
+.sidebar-button-selected {
+    -fx-background-color: #e2e8f0;
+    -fx-text-fill: #111827;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+}
+
+/* === TOPBAR === */
+.topbar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e5e7eb;
+    -fx-border-width: 0 0 1 0;
+}
+
+.logout-button {
+    -fx-background-color: #fca5a5;
+    -fx-text-fill: #7f1d1d;
+    -fx-background-radius: 8;
+    -fx-padding: 6 12 6 12;
+}
+
+.logout-button:hover {
+    -fx-background-color: #f87171;
+}
+
+/* === CONTENIDO === */
+.cartelera-main {
+    -fx-background-color: #ffffff;
+}
+
+.cartelera-title {
+    -fx-font-size: 20;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+/* === TARJETAS === */
+.pelicula-grid {
+    -fx-padding: 10 10 10 10;
+}
+
+.pelicula-card {
+    -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 20, 0.25, 0, 4);
+    -fx-background-radius: 12;
+    -fx-padding: 12;
+    -fx-pref-width: 260;
+}
+
+.pelicula-card-title {
+    -fx-font-size: 14;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.pelicula-card-detail {
+    -fx-font-size: 11;
+    -fx-text-fill: #6b7280;
+}
+
+.pelicula-ver-button {
+    -fx-background-color: #111827;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-padding: 6 10;
+}
+
+.pelicula-ver-button:hover {
+    -fx-background-color: #0f172a;
+}
+
+/* Scroll de cartelera: sin fondo gris */
+.cartelera-scroll {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* También la parte interna (viewport) sin fondo gris */
+.cartelera-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* === ScrollPane estilos globales === */
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* === ScrollBar: Ocultar ScrollBar horizontal === */
+.scroll-bar:horizontal {
+    -fx-opacity: 0;
+    -fx-pref-height: 0;
+}
+
+/* === ScrollBar vertical estilizado === */
+.scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-padding: 4;
+}
+
+/* Track (fondo de la barra) */
+.scroll-bar:vertical .track {
+    -fx-background-color: #f1f5f9; /* gris muy clarito */
+    -fx-background-radius: 8;
+}
+
+/* Thumb (parte que se mueve) */
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #cbd5e1; /* gris azulado */
+    -fx-background-radius: 8;
+}
+
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #94a3b8;
+}
+
+/* Botones arriba/abajo (normalmente inútiles) */
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-opacity: 0;
+    -fx-pref-height: 0;
+    -fx-pref-width: 0;
+}
+
+/* === DETALLE PELÍCULA === */
+
+.detalle-title {
+    -fx-font-size: 22;
+    -fx-font-weight: bold;
+    -fx-text-fill: #020617;
+}
+
+.detalle-section-title {
+    -fx-font-size: 13;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.detalle-subtitle {
+    -fx-font-size: 11;
+    -fx-text-fill: #6b7280;
+}
+
+.detalle-sinopsis {
+    -fx-font-size: 11;
+    -fx-text-fill: #4b5563;
+}
+
+.detalle-meta-label {
+    -fx-font-size: 11;
+    -fx-text-fill: #6b7280;
+    -fx-font-weight: bold;
+}
+
+.detalle-meta-value {
+    -fx-font-size: 11;
+    -fx-text-fill: #111827;
+}
+
+.detalle-meta-separator {
+    -fx-font-size: 11;
+    -fx-text-fill: #9ca3af;
+}
+
+.detalle-info-banner {
+    -fx-background-color: #fef2f2;
+    -fx-background-radius: 8;
+    -fx-padding: 6 10 6 10;
+    -fx-border-color: #fecaca;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-font-size: 11;
+    -fx-text-fill: #b91c1c;
+}
+
+.detalle-empty-text {
+    -fx-font-size: 11;
+    -fx-text-fill: #6b7280;
+}
+
+/* Botón primario reutilizable */
+.primary-button {
+    -fx-background-color: #020617;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-padding: 8 16 8 16;
+    -fx-font-weight: bold;
+}
+
+.primary-button:hover {
+    -fx-background-color: #0b1120;
+}
+
+/* Chips de día (ToggleButton) */
+.day-chip {
+    -fx-background-color: #f9fafb;
+    -fx-text-fill: #111827;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 11;
+}
+
+.day-chip:selected {
+    -fx-background-color: #020617;
+    -fx-text-fill: #ffffff;
+    -fx-border-color: #020617;
+}
+
+/* Chips de horario (ToggleButton) */
+.time-chip {
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #111827;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 999;
+    -fx-background-radius: 999;
+    -fx-padding: 4 12 4 12;
+    -fx-font-size: 11;
+}
+
+.time-chip:selected {
+    -fx-background-color: #020617;
+    -fx-text-fill: #ffffff;
+    -fx-border-color: #020617;
+}
+
+/* === SELECCIÓN DE ASIENTOS === */
+
+.seat-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-padding: 16 18 18 18;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.10), 18, 0.22, 0, 4);
+}
+
+.screen-label {
+    -fx-background-color: #e5e7eb;
+    -fx-padding: 6 16 6 16;
+    -fx-background-radius: 999;
+    -fx-text-fill: #4b5563;
+    -fx-font-size: 11;
+}
+
+.seat-button {
+    -fx-background-radius: 6;
+    -fx-font-size: 10;
+    -fx-text-fill: #ffffff;
+    -fx-padding: 2 4 2 4;
+}
+
+/* Estado de asientos */
+.asiento-libre {
+    -fx-background-color: #22c55e;  /* verde */
+}
+
+.asiento-ocupado {
+    -fx-background-color: #fecaca;  /* rosado */
+    -fx-text-fill: #7f1d1d;
+}
+
+.asiento-seleccionado {
+    -fx-background-color: #facc15;  /* amarillo */
+    -fx-text-fill: #92400e;
+}
+
+.seat-header {
+    -fx-font-size: 10;
+    -fx-text-fill: #6b7280;
+}
+
+/* Leyenda */
+.legend-item {
+    -fx-alignment: center-left;
+}
+
+.legend-dot-available,
+.legend-dot-occupied,
+.legend-dot-selected {
+    -fx-min-width: 16;
+    -fx-min-height: 10;
+    -fx-max-width: 16;
+    -fx-max-height: 10;
+    -fx-background-radius: 999;
+}
+
+.legend-dot-available { -fx-background-color: #22c55e; }
+.legend-dot-occupied  { -fx-background-color: #fecaca; }
+.legend-dot-selected  { -fx-background-color: #facc15; }
+
+.legend-text {
+    -fx-font-size: 11;
+    -fx-text-fill: #4b5563;
+}
+
+.seat-summary-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12;
+    -fx-padding: 10 14 10 14;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.08), 12, 0.2, 0, 2);
+}
+
+/* === CONFITERÍA (tarjetas) === */
+
+.combo-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-padding: 10 12 12 12;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.08), 12, 0.22, 0, 3);
+
+    -fx-pref-width: 260;
+    -fx-max-width: 260;
+}
+
+
+.combo-title {
+    -fx-font-size: 13;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.combo-desc {
+    -fx-font-size: 11;
+    -fx-text-fill: #6b7280;
+}
+
+.combo-price {
+    -fx-font-size: 12;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.conf-summary-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-padding: 12 16 14 16;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.10), 16, 0.26, 0, 4);
+}
+
+.conf-total-label {
+    -fx-font-size: 12;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+/* =======================
+   PAGO - PAYMENT SCREEN
+   ======================= */
+
+/* Título de página */
+.page-title {
+    -fx-font-size: 22;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+/* Tarjetas blancas */
+.card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-padding: 20 24 20 24;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 18, 0.2, 0, 4);
+}
+
+/* Título dentro de una tarjeta */
+.card-title {
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+/* Subtítulo dentro de tarjeta inferior */
+.card-subtitle {
+    -fx-font-size: 13;
+    -fx-text-fill: #6b7280;
+}
+
+/* Lista dentro de la tarjeta de la compra */
+.payment-list {
+    -fx-background-color: transparent;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 8;
+}
+
+/* ======== BOTONES ======== */
+
+/* Botón primario (Pay Now) */
+.primary-button {
+    -fx-background-color: #111827;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 10 22 10 22;
+}
+
+.primary-button:hover {
+    -fx-background-color: #0f172a;
+}
+
+/* Botón secundario (Cancelar) */
+.secondary-button {
+    -fx-background-color: #e5e7eb;
+    -fx-text-fill: #374151;
+    -fx-font-weight: normal;
+    -fx-background-radius: 8;
+    -fx-padding: 10 20 10 20;
+}
+
+.secondary-button:hover {
+    -fx-background-color: #d1d5db;
+}
+
+/* ======== Radio Buttons ======== */
+
+.radio-button {
+    -fx-focus-color: transparent;
+}
+
+.radio-button .radio {
+    -fx-border-color: #9ca3af;
+    -fx-border-width: 2;
+    -fx-background-color: white;
+}
+
+.radio-button:selected .radio {
+    -fx-border-color: #111827;
+}
+
+/* ======== Separador estético ======== */
+
+.separator {
+    -fx-background-color: #e5e7eb;
+    -fx-padding: 4 0 4 0;
+}
+
+.page-title {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 4);
+}
+
+.card-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.empty-text {
+    -fx-text-fill: #999999;
+    -fx-padding: 8 0 0 0;
+}
+
+/* Botones de acciones en tabla */
+.btn-danger {
+    -fx-background-color: #ff6b6b;
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+    -fx-padding: 4 14 4 14;
+}
+
+.btn-danger:disabled {
+    -fx-opacity: 0.5;
+}
+
+.btn-outline {
+    -fx-background-color: transparent;
+    -fx-border-color: #4a6fff;
+    -fx-text-fill: #4a6fff;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-padding: 4 14 4 14;
+}
+
+/* ===== Historial de compras ===== */
+
+.empty-text {
+    -fx-text-fill: #9ca3af;
+    -fx-font-size: 12;
+}
+
+/* Cabecera de tabla más limpia */
+.table-view .column-header-background {
+    -fx-background-color: #f3f4f6;
+}
+
+.table-view .column-header,
+.table-view .filler {
+    -fx-size: 32;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #e5e7eb;
+}
+
+/* Alternar colores de filas */
+.table-row-cell:odd {
+    -fx-background-color: #ffffff;
+}
+.table-row-cell:even {
+    -fx-background-color: #f9fafb;
+}
+.table-row-cell:selected {
+    -fx-background-color: #e5e7eb;
+}
+
+/* --- Layout admin --- */
+.admin-form-grid > .label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #70757d;
+}
+
+/* Botones principales */
+.primary-button {
+    -fx-background-color: #111827;
+    -fx-text-fill: white;
+    -fx-background-radius: 20;
+    -fx-padding: 6 18 6 18;
+}
+
+.primary-outline-button {
+    -fx-background-color: transparent;
+    -fx-border-color: #111827;
+    -fx-text-fill: #111827;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-padding: 6 16 6 16;
+}
+
+.secondary-button {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #b91c1c;
+    -fx-background-radius: 20;
+    -fx-padding: 6 16 6 16;
+}
+
+.ghost-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #6b7280;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-padding: 6 14 6 14;
+}
+
+/* Botones de acciones en tabla */
+.table-action-button {
+    -fx-background-color: #e5e7eb;
+    -fx-text-fill: #374151;
+    -fx-background-radius: 999;
+    -fx-padding: 2 8 2 8;
+}
+
+.table-action-button-danger {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #b91c1c;
+    -fx-background-radius: 999;
+    -fx-padding: 2 8 2 8;
+}
+
+

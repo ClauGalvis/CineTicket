@@ -5,11 +5,16 @@ import com.cineticket.dao.CompraDAO;
 import com.cineticket.dao.EntradaDAO;
 import com.cineticket.dao.FuncionDAO;
 import com.cineticket.dao.PeliculaDAO;
+import com.cineticket.enums.Rol;
+import com.cineticket.excepcion.AutenticacionException;
 import com.cineticket.modelo.Compra;
 import com.cineticket.modelo.CompraConfiteria;
 import com.cineticket.modelo.Entrada;
 import com.cineticket.modelo.Funcion;
 import com.cineticket.modelo.Pelicula;
+import com.cineticket.modelo.Usuario;
+import com.cineticket.util.SessionManager;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +45,16 @@ class ReporteServiceTest {
         service = new ReporteService(
                 compraDAO, entradaDAO, compraConfiteriaDAO, peliculaDAO, funcionDAO
         );
+        // Dejamos la sesión limpia y luego seteamos admin
+        SessionManager.getInstance().cerrarSesion();
+        Usuario admin = new Usuario();
+        admin.setRol(Rol.ADMIN);
+        SessionManager.getInstance().setUsuarioActual(admin);
+    }
+
+    @AfterEach
+    void limpiarSesion() {
+        SessionManager.getInstance().cerrarSesion();
     }
 
     // ======================= Helpers de fixtures =======================
@@ -254,11 +269,8 @@ class ReporteServiceTest {
         var top = service.obtenerTopPeliculas(5, ini, fin);
         assertEquals(2, top.size());
 
-        // Debe venir primero la más vendida (película 101 con 2 entradas vs 100 con 3? -> ojo)
-        // Conteo:
-        //  - Película 100: 3 entradas (2 de c1 + 1 de c2) → 54,000
-        //  - Película 101: 2 entradas (c2) → 40,000
-        // Por entradas, Película 100 va primero.
+        // Película 100: 3 entradas → 54,000
+        // Película 101: 2 entradas → 40,000
         assertEquals(100, top.get(0).get("peliculaId"));
         assertEquals(3, top.get(0).get("entradasVendidas"));
         assertEquals(new BigDecimal("54000.00"), top.get(0).get("ingresosAproxEntradas"));
@@ -282,5 +294,31 @@ class ReporteServiceTest {
 
         var total = service.calcularIngresosTotales(ini, fin);
         assertEquals(new BigDecimal("66000.00"), total);
+    }
+
+    // ============== Tests de seguridad (ADMIN requerido) ==============
+
+    @Test
+    void generarReporteVentasPorDia_noAdmin_lanzaAutenticacion() {
+        // Usuario normal
+        SessionManager.getInstance().cerrarSesion();
+        Usuario u = new Usuario();
+        u.setRol(Rol.USUARIO);
+        SessionManager.getInstance().setUsuarioActual(u);
+
+        assertThrows(AutenticacionException.class,
+                () -> service.generarReporteVentasPorDia(LocalDate.now()));
+
+        verifyNoInteractions(compraDAO, entradaDAO, compraConfiteriaDAO, peliculaDAO, funcionDAO);
+    }
+
+    @Test
+    void generarReporteVentasPorDia_sinSesion_lanzaAutenticacion() {
+        SessionManager.getInstance().cerrarSesion();
+
+        assertThrows(AutenticacionException.class,
+                () -> service.generarReporteVentasPorDia(LocalDate.now()));
+
+        verifyNoInteractions(compraDAO, entradaDAO, compraConfiteriaDAO, peliculaDAO, funcionDAO);
     }
 }

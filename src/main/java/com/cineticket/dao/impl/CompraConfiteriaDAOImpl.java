@@ -13,11 +13,12 @@ import java.util.LinkedHashMap;
 
 public class CompraConfiteriaDAOImpl extends BaseDAO implements CompraConfiteriaDAO {
 
-    public CompraConfiteriaDAOImpl() {}
+    public CompraConfiteriaDAOImpl() {
+    }
 
     private static void validar(CompraConfiteria i) {
-        if (i.getCompraId() == null)  throw new IllegalArgumentException("compraId requerido");
-        if (i.getComboId() == null)   throw new IllegalArgumentException("comboId requerido");
+        if (i.getCompraId() == null) throw new IllegalArgumentException("compraId requerido");
+        if (i.getComboId() == null) throw new IllegalArgumentException("comboId requerido");
         if (i.getCantidad() == null || i.getCantidad() <= 0)
             throw new IllegalArgumentException("cantidad debe ser > 0");
         if (i.getPrecioUnitario() == null || i.getPrecioUnitario().signum() < 0)
@@ -29,9 +30,9 @@ public class CompraConfiteriaDAOImpl extends BaseDAO implements CompraConfiteria
         validar(i);
         // subtotal es GENERATED ALWAYS -> no se envía
         String sql = """
-            INSERT INTO compra_confiteria (compra_id, combo_id, cantidad, precio_unitario)
-            VALUES (?, ?, ?, ?)
-        """;
+                    INSERT INTO compra_confiteria (compra_id, combo_id, cantidad, precio_unitario)
+                    VALUES (?, ?, ?, ?)
+                """;
         try (Connection c = getConnection();
              PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -96,12 +97,12 @@ public class CompraConfiteriaDAOImpl extends BaseDAO implements CompraConfiteria
     public Map<Integer, Integer> obtenerVentasPorCombo(LocalDateTime inicio, LocalDateTime fin) {
         // Sumamos cantidades por combo filtrando por fecha de la COMPRA
         String sql = """
-            SELECT cc.combo_id, SUM(cc.cantidad) AS total
-              FROM compra_confiteria cc
-              JOIN compra c ON c.id_compra = cc.compra_id
-             WHERE c.fecha_hora_compra BETWEEN ? AND ?
-             GROUP BY cc.combo_id
-        """;
+                    SELECT cc.combo_id, SUM(cc.cantidad) AS total
+                      FROM compra_confiteria cc
+                      JOIN compra c ON c.id_compra = cc.compra_id
+                     WHERE c.fecha_hora_compra BETWEEN ? AND ?
+                     GROUP BY cc.combo_id
+                """;
         Map<Integer, Integer> mapa = new LinkedHashMap<>();
         try (Connection c = getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {

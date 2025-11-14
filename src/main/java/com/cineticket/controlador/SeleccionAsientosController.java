@@ -1,10 +1,13 @@
 package com.cineticket.controlador;
 
+import com.cineticket.dao.AsientoDAO;
 import com.cineticket.modelo.Asiento;
 import com.cineticket.modelo.Funcion;
 import com.cineticket.modelo.Pelicula;
+import com.cineticket.servicio.CarteleraService;
 import com.cineticket.servicio.ReservaService;
 import com.cineticket.util.AppContext;
+import com.cineticket.util.SeleccionFuncionContext;
 import com.cineticket.util.SelectedData;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -20,9 +23,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Selección de asientos: genera una grilla por sala, marca ocupados, permite seleccionar hasta 5.
- */
 public class SeleccionAsientosController {
 
     @FXML private GridPane gridAsientos;
@@ -31,10 +31,15 @@ public class SeleccionAsientosController {
     @FXML private Label lblSala;
     @FXML private Label lblAsientosSeleccionados;
     @FXML private Label lblTotal;
+    @FXML private Button btnContinuar;
 
     private final ReservaService reservaService = AppContext.getReservaService();
+    private final CarteleraService carteleraService = AppContext.getCarteleraService();
+    private final AsientoDAO asientoDAO = AppContext.getAsientoDAO();
 
     private Funcion funcionSeleccionada;
+    private Pelicula peliculaSeleccionada;
+
     private final List<Integer> asientosSeleccionados = new ArrayList<>();
     private final Set<Integer> asientosOcupados = new HashSet<>();
     private final Map<Integer, Button> botonesPorAsiento = new HashMap<>();
@@ -43,39 +48,55 @@ public class SeleccionAsientosController {
 
     @FXML
     public void initialize() {
-        // Recuperamos lo seleccionado previamente en Cartelera
-        this.funcionSeleccionada = SelectedData.getFuncion();
-        Pelicula p = SelectedData.getPelicula();
+        Integer funcionId = SeleccionFuncionContext.getFuncionActualId();
 
-        if (funcionSeleccionada == null) {
-            new Alert(Alert.AlertType.ERROR, "No hay función seleccionada.", ButtonType.OK).showAndWait();
+        if (funcionId == null) {
+            mostrarError("No hay función seleccionada.");
             UiRouter.go(gridAsientos, "/fxml/cartelera.fxml");
             return;
         }
 
+        // Cargamos función y película desde el servicio
+        funcionSeleccionada = carteleraService.obtenerFuncionPorId(funcionId);
+        peliculaSeleccionada =
+                carteleraService.obtenerDetallesPelicula(funcionSeleccionada.getPeliculaId());
+
+        // Guardamos en SelectedData para compatibilidad con pantallas siguientes
+        SelectedData.setFuncion(funcionSeleccionada);
+        SelectedData.setPelicula(peliculaSeleccionada);
+
         // Encabezados
-        lblPelicula.setText(p != null ? p.getTitulo() : "(Película)");
+        lblPelicula.setText(peliculaSeleccionada.getTitulo());
 
         String inicio = fmtDate(funcionSeleccionada.getFechaHoraInicio());
-        String fin    = fmtDate(funcionSeleccionada.getFechaHoraFin());
-        lblFuncion.setText(inicio + " - " + fin);
+        lblFuncion.setText(inicio);
 
-        // Si tu VO no trae objeto Sala, mostramos el id
         lblSala.setText("Sala " + funcionSeleccionada.getSalaId());
 
-        setFuncion(funcionSeleccionada);
-    }
-
-    /** Permite recargar si se cambia la función. */
-    public void setFuncion(Funcion funcion) {
-        this.funcionSeleccionada = funcion;
         cargarMapaAsientos();
     }
 
-    /** 1) Asientos de la sala  2) Ocupados  3) Genera grilla  4) Estilos */
-    public void cargarMapaAsientos() {
+    // === navegación sidebar / topbar ===
+
+    @FXML
+    public void volverCartelera(ActionEvent e) {
+        UiRouter.go((Node) e.getSource(), "/fxml/cartelera.fxml");
+    }
+
+    @FXML
+    public void abrirHistorial(ActionEvent e) {
+        UiRouter.go((Node) e.getSource(), "/fxml/historial.fxml");
+    }
+
+    @FXML
+    public void cerrarSesion(ActionEvent e) {
+        UiRouter.go((Node) e.getSource(), "/fxml/login.fxml");
+    }
+
+    // === lógica de asientos ===
+
+    private void cargarMapaAsientos() {
         try {
-            var asientoDAO = AppContext.getAsientoDAO();
             List<Asiento> asientosSala = asientoDAO.listarPorSala(funcionSeleccionada.getSalaId());
 
             asientosOcupados.clear();
@@ -88,24 +109,32 @@ public class SeleccionAsientosController {
             gridAsientos.getRowConstraints().clear();
             gridAsientos.setHgap(8);
             gridAsientos.setVgap(8);
-            gridAsientos.setPadding(new Insets(10));
+            gridAsientos.setPadding(new Insets(16));
 
-            int maxFila = asientosSala.stream().mapToInt(a -> filaLabelToIndex(a.getFila())).max().orElse(0);
-            int maxCol  = asientosSala.stream().mapToInt(Asiento::getNumero).max().orElse(0);
+            int maxFila = asientosSala.stream()
+                    .mapToInt(a -> filaLabelToIndex(a.getFila()))
+                    .max().orElse(0);
+            int maxCol  = asientosSala.stream()
+                    .mapToInt(Asiento::getNumero)
+                    .max().orElse(0);
 
             botonesPorAsiento.clear();
 
-            // Encabezados
+            // Encabezados de columnas (números)
             for (int c = 1; c <= maxCol; c++) {
                 Label l = new Label(String.valueOf(c));
+                l.getStyleClass().add("seat-header");
                 GridPane.setHalignment(l, HPos.CENTER);
                 gridAsientos.add(l, c, 0);
             }
+            // Encabezados de filas (letras)
             for (int r = 1; r <= maxFila; r++) {
-                gridAsientos.add(new Label(indexToFilaLabel(r)), 0, r);
+                Label l = new Label(indexToFilaLabel(r));
+                l.getStyleClass().add("seat-header");
+                gridAsientos.add(l, 0, r);
             }
 
-            // Botones
+            // Botones de asiento
             for (Asiento a : asientosSala) {
                 int row = filaLabelToIndex(a.getFila());
                 int col = a.getNumero();
@@ -126,8 +155,7 @@ public class SeleccionAsientosController {
             actualizarInterfaz();
 
         } catch (Exception ex) {
-            new Alert(Alert.AlertType.ERROR,
-                    "No se pudo cargar el mapa de asientos.\n" + ex.getMessage(), ButtonType.OK).showAndWait();
+            mostrarError("No se pudo cargar el mapa de asientos.\n" + ex.getMessage());
         }
     }
 
@@ -140,7 +168,7 @@ public class SeleccionAsientosController {
             aplicarEstiloAsiento(boton, "libre");
         } else {
             if (asientosSeleccionados.size() >= 5) {
-                new Alert(Alert.AlertType.WARNING, "Máximo 5 asientos por compra.", ButtonType.OK).showAndWait();
+                mostrarAdvertencia("Máximo 5 asientos por compra.");
                 return;
             }
             asientosSeleccionados.add(id);
@@ -157,18 +185,15 @@ public class SeleccionAsientosController {
                 funcionSeleccionada.getIdFuncion(), asientosSeleccionados
         );
         if (!disponibles) {
-            new Alert(Alert.AlertType.WARNING,
-                    "Alguno de los asientos ya no está disponible. Se actualizará el mapa.",
-                    ButtonType.OK).showAndWait();
+            mostrarAdvertencia("Alguno de los asientos ya no está disponible. Se actualizará el mapa.");
             cargarMapaAsientos();
             return;
         }
 
-        // Guardamos para la siguiente pantalla (confitería/confirmación)
         SelectedData.setAsientosSeleccionados(new ArrayList<>(asientosSeleccionados));
-
         UiRouter.go((Node) e.getSource(), "/fxml/confiteria.fxml");
     }
+
 
     @FXML
     public void cancelar(ActionEvent e) {
@@ -178,14 +203,17 @@ public class SeleccionAsientosController {
     // ---------- helpers UI ----------
 
     private void actualizarInterfaz() {
-        lblAsientosSeleccionados.setText("Seleccionados: " + formatSeleccion()
+        lblAsientosSeleccionados.setText("Asientos seleccionados: " + formatSeleccion()
                 + " (" + asientosSeleccionados.size() + "/5)");
         lblTotal.setText("Total: " + formatMoney(calcularTotal()));
+        if (btnContinuar != null) {
+            btnContinuar.setDisable(asientosSeleccionados.isEmpty());
+        }
     }
 
     private boolean validarSeleccion() {
         if (asientosSeleccionados.isEmpty()) {
-            new Alert(Alert.AlertType.WARNING, "Selecciona al menos un asiento.", ButtonType.OK).showAndWait();
+            mostrarAdvertencia("Selecciona al menos un asiento.");
             return false;
         }
         return true;
@@ -194,14 +222,16 @@ public class SeleccionAsientosController {
     private BigDecimal calcularTotal() {
         Double precio = funcionSeleccionada.getPrecioEntrada();
         if (precio == null) precio = 0.0;
-        return BigDecimal.valueOf(precio).multiply(BigDecimal.valueOf(asientosSeleccionados.size()));
+        return BigDecimal.valueOf(precio)
+                .multiply(BigDecimal.valueOf(asientosSeleccionados.size()));
     }
 
     private Button crearBotonAsiento(Asiento asiento) {
         String etiqueta = asiento.getFila() + asiento.getNumero();
         Button b = new Button(etiqueta);
-        b.setMinSize(36, 28);
-        b.setPrefSize(36, 28);
+        b.setMinSize(32, 28);
+        b.setPrefSize(32, 28);
+        b.getStyleClass().add("seat-button");
         b.setOnAction(evt -> manejarSeleccionAsiento(asiento, b));
         return b;
     }
@@ -225,8 +255,13 @@ public class SeleccionAsientosController {
     }
 
     private String formatSeleccion() {
+        if (asientosSeleccionados.isEmpty()) {
+            return "—";
+        }
         return asientosSeleccionados.stream()
-                .map(id -> Optional.ofNullable(botonesPorAsiento.get(id)).map(Button::getText).orElse("#"+id))
+                .map(id -> Optional.ofNullable(botonesPorAsiento.get(id))
+                        .map(Button::getText)
+                        .orElse("#" + id))
                 .collect(Collectors.joining(", "));
     }
 
@@ -256,5 +291,13 @@ public class SeleccionAsientosController {
             n = (n - 1) / 26;
         }
         return sb.toString();
+    }
+
+    private void mostrarError(String msg) {
+        new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK).showAndWait();
+    }
+
+    private void mostrarAdvertencia(String msg) {
+        new Alert(Alert.AlertType.WARNING, msg, ButtonType.OK).showAndWait();
     }
 }

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cineticket.controlador.DetallePeliculaController"
+            stylesheets="@../css/styles.css">
+
+    <!-- SIDEBAR IZQUIERDO -->
+    <left>
+        <VBox spacing="20" styleClass="sidebar">
+            <padding>
+                <Insets top="24" right="12" bottom="12" left="12"/>
+            </padding>
+
+            <!-- Logo pequeño -->
+            <ImageView fitHeight="28" preserveRatio="true">
+                <image>
+                    <Image url="@../img/logo_cinetick.png"/>
+                </image>
+            </ImageView>
+
+            <VBox spacing="8">
+                <Button text="Películas"
+                        styleClass="sidebar-button-selected"
+                        onAction="#volverCartelera"/>
+                <Button text="Mis compras"
+                        styleClass="sidebar-button"
+                        onAction="#abrirHistorial"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- TOPBAR (LOGOUT) -->
+    <top>
+        <HBox alignment="CENTER_RIGHT" styleClass="topbar">
+            <padding>
+                <Insets top="12" right="18" bottom="12" left="12"/>
+            </padding>
+
+            <Button text="Cerrar sesión"
+                    styleClass="logout-button"
+                    onAction="#cerrarSesion"/>
+        </HBox>
+    </top>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <center>
+        <!-- Scroll para que en alturas pequeñas no se corte nada -->
+        <ScrollPane hbarPolicy="NEVER"
+                    fitToWidth="true"
+                    styleClass="cartelera-scroll">
+            <content>
+                <!-- Contenedor principal centrado -->
+                <VBox spacing="18"
+                      styleClass="cartelera-main"
+                      alignment="TOP_CENTER">
+                    <padding>
+                        <Insets top="18" right="24" bottom="24" left="24"/>
+                    </padding>
+
+                    <Label text="Detalles de la película" styleClass="cartelera-title"/>
+
+                    <!-- Layout principal: poster + info -->
+                    <HBox fx:id="detalleLayout"
+                          spacing="32"
+                          maxWidth="1024">
+                        <!-- Columna izquierda: poster -->
+                        <VBox alignment="TOP_LEFT">
+                            <ImageView fx:id="imgPoster"
+                                       fitWidth="260"
+                                       fitHeight="380"
+                                       preserveRatio="true"/>
+                        </VBox>
+
+                        <!-- Columna derecha: información -->
+                        <VBox spacing="12"
+                              HBox.hgrow="ALWAYS"
+                              prefWidth="600">
+                            <!-- Título y géneros -->
+                            <VBox spacing="8">
+                                <Label fx:id="lblTitulo" styleClass="detalle-title"/>
+
+                                <FlowPane fx:id="generosFlow"
+                                          hgap="6" vgap="6"/>
+                            </VBox>
+
+                            <!-- Meta info -->
+                            <HBox spacing="10">
+                                <Label text="Duración:"
+                                       styleClass="detalle-meta-label"/>
+                                <Label fx:id="lblDuracion"
+                                       styleClass="detalle-meta-value"/>
+
+                                <Label text="•" styleClass="detalle-meta-separator"/>
+
+                                <Label text="Clasificación:"
+                                       styleClass="detalle-meta-label"/>
+                                <Label fx:id="lblClasificacion"
+                                       styleClass="detalle-meta-value"/>
+
+                                <Label text="•" styleClass="detalle-meta-separator"/>
+
+                                <Label text="Estreno:"
+                                       styleClass="detalle-meta-label"/>
+                                <Label fx:id="lblFechaEstreno"
+                                       styleClass="detalle-meta-value"/>
+                            </HBox>
+
+                            <!-- Sinopsis -->
+                            <VBox spacing="4">
+                                <Label text="Sinopsis" styleClass="detalle-section-title"/>
+                                <Label fx:id="lblSinopsis"
+                                       wrapText="true"
+                                       maxWidth="600.0"
+                                       styleClass="detalle-sinopsis"/>
+                            </VBox>
+
+                            <!-- Aviso límite de asientos -->
+                            <HBox styleClass="detalle-info-banner">
+                                <Label text="Máximo de 5 asientos por transacción."
+                                       wrapText="true"/>
+                            </HBox>
+
+                            <!-- Showtimes -->
+                            <VBox spacing="10">
+                                <Label text="Funciones" styleClass="detalle-section-title"/>
+
+                                <Label text="Selecciona el día"
+                                       styleClass="detalle-subtitle"/>
+                                <FlowPane fx:id="diasFlow"
+                                          hgap="8" vgap="8"/>
+
+                                <Label text="Horarios disponibles"
+                                       styleClass="detalle-subtitle"/>
+                                <FlowPane fx:id="horariosFlow"
+                                          hgap="8" vgap="8"/>
+                            </VBox>
+
+                            <!-- Botones de acción -->
+                            <HBox alignment="CENTER_RIGHT" spacing="10">
+                                <Button text="Volver a cartelera"
+                                        onAction="#volverCartelera"/>
+                                <Button fx:id="btnSeleccionarAsientos"
+                                        text="Seleccionar asientos"
+                                        styleClass="primary-button"
+                                        onAction="#abrirSeleccionAsientos"/>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+</BorderPane>

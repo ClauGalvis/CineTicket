@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.cineticket.controlador.admin.NuevaFuncionController"
+      stylesheets="@../../css/styles.css"
+      spacing="16"
+      styleClass="cartelera-main">
+
+    <padding>
+        <Insets top="18" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <Label text="Agregar nueva función" styleClass="cartelera-title"/>
+
+    <VBox spacing="12" styleClass="card">
+        <padding>
+            <Insets top="18" right="18" bottom="18" left="18"/>
+        </padding>
+
+        <Label text="Datos de la función" styleClass="card-title"/>
+
+        <GridPane hgap="12" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints percentWidth="50"/>
+                <ColumnConstraints percentWidth="50"/>
+            </columnConstraints>
+
+            <!-- Película -->
+            <Label text="Película" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="cmbPelicula"
+                      promptText="Selecciona una película"
+                      GridPane.rowIndex="1" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+
+            <!-- Fecha -->
+            <Label text="Fecha" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <DatePicker fx:id="dpFecha"
+                        GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+
+            <!-- Hora de inicio -->
+            <Label text="Hora de inicio (HH:mm)" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            <TextField fx:id="txtHoraInicio"
+                       promptText="Ej. 19:30"
+                       GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+            <!-- Sala -->
+            <Label text="ID de sala" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtSalaId"
+                       promptText="Ej. 1"
+                       GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+
+            <!-- Precio -->
+            <Label text="Precio entrada" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            <TextField fx:id="txtPrecio"
+                       promptText="Ej. 15000"
+                       GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+        </GridPane>
+
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Cancelar"
+                    onAction="#cancelar"
+                    styleClass="secondary-button"/>
+
+            <Button fx:id="btnGuardar"
+                    text="Guardar función"
+                    onAction="#guardar"
+                    styleClass="primary-button"/>
+        </HBox>
+    </VBox>
+
+</VBox>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cineticket.controlador.admin.GestionCarteleraController"
+            stylesheets="@../../css/styles.css">
+
+    <!-- SIDEBAR IZQUIERDO (reutilizado) -->
+    <left>
+        <VBox spacing="20" styleClass="sidebar">
+            <padding>
+                <Insets top="24" right="12" bottom="12" left="12"/>
+            </padding>
+
+            <!-- Logo pequeño -->
+            <ImageView fitHeight="28" preserveRatio="true">
+                <image>
+                    <Image url="@../../img/logo_cinetick.png"/>
+                </image>
+            </ImageView>
+
+            <VBox spacing="8">
+                <!-- En admin, “Gestión cartelera” está seleccionada -->
+                <Button text="Gestión de cartelera"
+                        styleClass="sidebar-button-selected"/>
+                <Button text="Reportes de ventas"
+                        styleClass="sidebar-button"
+                        onAction="#abrirReportesVentas"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- TOPBAR (Logout) -->
+    <top>
+        <HBox alignment="CENTER_RIGHT" styleClass="topbar">
+            <padding>
+                <Insets top="12" right="18" bottom="12" left="12"/>
+            </padding>
+
+            <Button text="Cerrar sesión"
+                    styleClass="logout-button"
+                    onAction="#cerrarSesion"/>
+        </HBox>
+    </top>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <center>
+        <VBox spacing="16" styleClass="cartelera-main">
+            <padding>
+                <Insets top="18" right="24" bottom="24" left="24"/>
+            </padding>
+
+            <!-- Título de página -->
+            <Label text="Gestión de cartelera" styleClass="cartelera-title"/>
+
+            <!-- TARJETA: Datos de película -->
+            <VBox spacing="12" styleClass="card">
+                <padding>
+                    <Insets top="18" right="18" bottom="18" left="18"/>
+                </padding>
+
+                <Label text="Datos de la película" styleClass="card-title"/>
+
+                <GridPane hgap="12" vgap="10">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="33"/>
+                        <ColumnConstraints percentWidth="33"/>
+                        <ColumnConstraints percentWidth="34"/>
+                    </columnConstraints>
+
+                    <!-- Fila 1 -->
+                    <Label text="Título" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="txtTitulo"
+                               promptText="Título de la película"
+                               GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+
+                    <Label text="Género" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                    <ComboBox fx:id="cmbGenero"
+                              promptText="Selecciona un género"
+                              GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                    <Label text="Duración (minutos)" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                    <TextField fx:id="txtDuracion"
+                               promptText="Ej. 120"
+                               GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+
+                    <!-- Fila 2 -->
+                    <Label text="Clasificación" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <ComboBox fx:id="cmbClasificacion"
+                              promptText="Selecciona una clasificación"
+                              GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+
+                    <Label text="URL del póster"
+                           GridPane.rowIndex="2" GridPane.columnIndex="1" GridPane.columnSpan="2"/>
+                    <TextField fx:id="txtPosterUrl"
+                               promptText="https://ejemplo.com/poster.jpg"
+                               GridPane.rowIndex="3" GridPane.columnIndex="1" GridPane.columnSpan="2"/>
+
+                    <!-- Fila 3: Sinopsis -->
+                    <Label text="Sinopsis"
+                           GridPane.rowIndex="4" GridPane.columnIndex="0" GridPane.columnSpan="3"/>
+                    <TextArea fx:id="txtSinopsis"
+                              promptText="Breve sinopsis de la película..."
+                              prefRowCount="3"
+                              GridPane.rowIndex="5" GridPane.columnIndex="0" GridPane.columnSpan="3"/>
+                </GridPane>
+
+                <!-- Botones de acción de película -->
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button text="Limpiar formulario"
+                            onAction="#limpiarFormulario"
+                            styleClass="secondary-button"/>
+
+                    <Button text="Agregar película"
+                            onAction="#guardarPelicula"
+                            styleClass="primary-button"/>
+                </HBox>
+            </VBox>
+
+            <!-- TARJETA: Funciones programadas -->
+            <VBox spacing="12" styleClass="card">
+                <padding>
+                    <Insets top="18" right="18" bottom="18" left="18"/>
+                </padding>
+
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Funciones programadas" styleClass="card-title"/>
+                    <Pane HBox.hgrow="ALWAYS"/>
+                    <Button text="Agregar función"
+                            onAction="#abrirDialogoNuevaFuncion"
+                            styleClass="primary-button"/>
+                </HBox>
+
+                <Label fx:id="lblSinFunciones"
+                       text="No hay funciones programadas."
+                       visible="false"
+                       styleClass="empty-text"/>
+
+                <!-- Tabla de funciones -->
+                <TableView fx:id="tablaFunciones" prefHeight="250">
+                    <columns>
+                        <TableColumn fx:id="colTitulo" text="Película"/>
+                        <TableColumn fx:id="colFecha" text="Fecha"/>
+                        <TableColumn fx:id="colHora" text="Hora"/>
+                        <TableColumn fx:id="colSala" text="Sala"/>
+                        <TableColumn fx:id="colPrecio" text="Precio"/>
+                        <TableColumn fx:id="colAcciones" text="Acciones" prefWidth="120"/>
+                    </columns>
+                </TableView>
+
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

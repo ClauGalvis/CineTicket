@@ -10,14 +10,15 @@ import java.util.List;
 
 public class GeneroDAOImpl extends BaseDAO implements GeneroDAO {
 
-    public GeneroDAOImpl() {}
+    public GeneroDAOImpl() {
+    }
 
     @Override
     public Integer crear(Genero g) {
         String sql = """
-            INSERT INTO genero (nombre_genero, descripcion, activo)
-            VALUES (?, ?, ?)
-        """;
+                    INSERT INTO genero (nombre_genero, descripcion, activo)
+                    VALUES (?, ?, ?)
+                """;
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -85,10 +86,10 @@ public class GeneroDAOImpl extends BaseDAO implements GeneroDAO {
     @Override
     public boolean actualizar(Genero g) {
         String sql = """
-            UPDATE genero
-               SET nombre_genero = ?, descripcion = ?, activo = ?
-             WHERE id_genero = ?
-        """;
+                    UPDATE genero
+                       SET nombre_genero = ?, descripcion = ?, activo = ?
+                     WHERE id_genero = ?
+                """;
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 

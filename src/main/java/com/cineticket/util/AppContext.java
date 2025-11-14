@@ -15,7 +15,10 @@ public final class AppContext {
     // --- Cartelera (películas / funciones)
     private static final PeliculaDAO peliculaDAO = new PeliculaDAOImpl();
     private static final FuncionDAO funcionDAO  = new FuncionDAOImpl();
-    private static final CarteleraService carteleraService = new CarteleraService(peliculaDAO, funcionDAO);
+    private static final GeneroDAO generoDAO    = new GeneroDAOImpl();   // ← nuevo
+    private static final CarteleraService carteleraService =
+            new CarteleraService(peliculaDAO, funcionDAO, generoDAO);   // ← pasa el tercero
+
 
     // --- Asientos / Reserva
     private static final AsientoDAO asientoDAO = new AsientoDAOImpl();
@@ -34,6 +37,12 @@ public final class AppContext {
             new CompraService(compraDAO, entradaDAO, compraConfiteriaDAO,
                     funcionDAO, reservaService, confiteriaService, pdfService);
 
+    // --- Reportes
+    private static final ReporteService reporteService =
+            new ReporteService(compraDAO, entradaDAO, compraConfiteriaDAO,
+                    peliculaDAO, funcionDAO);
+
+
     private AppContext() {}
 
     // --- Getters expuestos a la UI ---
@@ -46,6 +55,11 @@ public final class AppContext {
     public static ConfiteriaService getConfiteriaService() { return confiteriaService; }
 
     public static CompraService getCompraService() { return compraService; }
+
+    public static ReporteService getReporteService() { return reporteService; }
+
+    public static PDFService getPDFService() { return pdfService; }
+
 
     // (opcionales, por si alguno los necesita)
     public static FuncionDAO getFuncionDAO() { return funcionDAO; }

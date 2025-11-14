@@ -15,18 +15,29 @@ import java.util.List;
 /**
  * Implementación JDBC de CompraDAO.
  * Tabla: compra(id_compra, usuario_id, fecha_hora_compra, total_entradas, total_confiteria,
- *               total_general [GENERATED ALWAYS], metodo_pago, estado_compra, fecha_cancelacion, ruta_comprobante_pdf)
+ * total_general [GENERATED ALWAYS], metodo_pago, estado_compra, fecha_cancelacion, ruta_comprobante_pdf)
  */
 public class CompraDAOImpl extends BaseDAO implements CompraDAO {
 
-    public CompraDAOImpl() {}
+    public CompraDAOImpl() {
+    }
 
     // ===== Helpers =====
-    private static String toDbMetodo(MetodoPago m) { return m.name(); }
-    private static MetodoPago fromDbMetodo(String s) { return MetodoPago.valueOf(s); }
+    private static String toDbMetodo(MetodoPago m) {
+        return m.name();
+    }
 
-    private static String toDbEstado(EstadoCompra e) { return e.name(); }
-    private static EstadoCompra fromDbEstado(String s) { return EstadoCompra.valueOf(s); }
+    private static MetodoPago fromDbMetodo(String s) {
+        return MetodoPago.valueOf(s);
+    }
+
+    private static String toDbEstado(EstadoCompra e) {
+        return e.name();
+    }
+
+    private static EstadoCompra fromDbEstado(String s) {
+        return EstadoCompra.valueOf(s);
+    }
 
     private static void validar(Compra c) {
         if (c.getUsuarioId() == null) throw new IllegalArgumentException("usuarioId requerido");
@@ -45,11 +56,11 @@ public class CompraDAOImpl extends BaseDAO implements CompraDAO {
         validar(c);
         // total_general NO se envía (columna GENERATED ALWAYS)
         String sql = """
-            INSERT INTO compra
-              (usuario_id, fecha_hora_compra, total_entradas, total_confiteria,
-               metodo_pago, estado_compra, fecha_cancelacion, ruta_comprobante_pdf)
-            VALUES (?, ?, ?, ?, ?::metodo_pago, ?::estado_compra, ?, ?)
-        """;
+                    INSERT INTO compra
+                      (usuario_id, fecha_hora_compra, total_entradas, total_confiteria,
+                       metodo_pago, estado_compra, fecha_cancelacion, ruta_comprobante_pdf)
+                    VALUES (?, ?, ?, ?, ?::metodo_pago, ?::estado_compra, ?, ?)
+                """;
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -118,12 +129,12 @@ public class CompraDAOImpl extends BaseDAO implements CompraDAO {
         validar(c);
         // total_general NO se actualiza (es generated)
         String sql = """
-            UPDATE compra SET
-              usuario_id = ?, fecha_hora_compra = ?, total_entradas = ?, total_confiteria = ?,
-              metodo_pago = ?::metodo_pago, estado_compra = ?::estado_compra,
-              fecha_cancelacion = ?, ruta_comprobante_pdf = ?
-            WHERE id_compra = ?
-        """;
+                    UPDATE compra SET
+                      usuario_id = ?, fecha_hora_compra = ?, total_entradas = ?, total_confiteria = ?,
+                      metodo_pago = ?::metodo_pago, estado_compra = ?::estado_compra,
+                      fecha_cancelacion = ?, ruta_comprobante_pdf = ?
+                    WHERE id_compra = ?
+                """;
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, c.getUsuarioId());
@@ -148,11 +159,11 @@ public class CompraDAOImpl extends BaseDAO implements CompraDAO {
     @Override
     public boolean cancelarCompra(Integer idCompra) {
         String sql = """
-            UPDATE compra
-               SET estado_compra = 'CANCELADA'::estado_compra,
-                   fecha_cancelacion = now()
-             WHERE id_compra = ?
-        """;
+                    UPDATE compra
+                       SET estado_compra = 'CANCELADA'::estado_compra,
+                           fecha_cancelacion = now()
+                     WHERE id_compra = ?
+                """;
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, idCompra);
@@ -165,10 +176,10 @@ public class CompraDAOImpl extends BaseDAO implements CompraDAO {
     @Override
     public List<Compra> obtenerComprasEntreFechas(LocalDateTime inicio, LocalDateTime fin) {
         String sql = """
-            SELECT * FROM compra
-             WHERE fecha_hora_compra BETWEEN ? AND ?
-             ORDER BY fecha_hora_compra
-        """;
+                    SELECT * FROM compra
+                     WHERE fecha_hora_compra BETWEEN ? AND ?
+                     ORDER BY fecha_hora_compra
+                """;
         List<Compra> list = new ArrayList<>();
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

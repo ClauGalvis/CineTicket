@@ -1,70 +1,99 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.cineticket.controlador.ConfiteriaController"
-            prefWidth="960" prefHeight="600">
+            stylesheets="@../css/styles.css">
 
-    <top>
-        <HBox spacing="10">
+    <!-- SIDEBAR IZQUIERDO -->
+    <left>
+        <VBox spacing="20" styleClass="sidebar">
             <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
+                <Insets top="24" right="12" bottom="12" left="12"/>
             </padding>
-            <Label text="Confitería" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
-            <Pane HBox.hgrow="ALWAYS"/>
-            <Label fx:id="lblTotalConfiteria" text="Total confitería: $ 0.00" style="-fx-font-weight: bold;"/>
+
+            <!-- Logo pequeño -->
+            <ImageView fitHeight="28" preserveRatio="true">
+                <image>
+                    <Image url="@../img/logo_cinetick.png"/>
+                </image>
+            </ImageView>
+
+            <VBox spacing="8">
+                <Button text="Películas"
+                        styleClass="sidebar-button"
+                        onAction="#volverCartelera"/>
+                <Button text="Mis compras"
+                        styleClass="sidebar-button"
+                        onAction="#abrirHistorial"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- TOPBAR (LOGOUT) -->
+    <top>
+        <HBox alignment="CENTER_RIGHT" styleClass="topbar">
+            <padding>
+                <Insets top="12" right="18" bottom="12" left="12"/>
+            </padding>
+
+            <Button text="Cerrar sesión"
+                    styleClass="logout-button"
+                    onAction="#cerrarSesion"/>
         </HBox>
     </top>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <center>
-        <GridPane hgap="12" vgap="12">
+        <VBox spacing="16" styleClass="cartelera-main">
             <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
+                <Insets top="18" right="24" bottom="24" left="24"/>
             </padding>
-            <columnConstraints>
-                <ColumnConstraints percentWidth="35"/>
-                <ColumnConstraints percentWidth="35"/>
-                <ColumnConstraints percentWidth="30"/>
-            </columnConstraints>
 
-            <!-- Lista de combos -->
-            <VBox GridPane.columnIndex="0" spacing="8">
-                <Label text="Disponibles"/>
-                <ListView fx:id="listViewCombos" prefHeight="480"/>
-            </VBox>
+            <!-- Título principal -->
+            <Label text="Snacks y Combos" styleClass="cartelera-title"/>
 
-            <!-- Detalle del combo -->
-            <VBox GridPane.columnIndex="1" spacing="8">
-                <Label text="Detalle"/>
-                <ImageView fx:id="imgCombo" fitWidth="280" fitHeight="180" preserveRatio="true"/>
-                <Label fx:id="lblNombreCombo" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-                <Label fx:id="lblDescripcion" wrapText="true"/>
-                <Label fx:id="lblPrecio" style="-fx-font-weight: bold;"/>
-                <HBox spacing="8" alignment="CENTER_LEFT">
-                    <Label text="Cantidad:"/>
-                    <Spinner fx:id="spinnerCantidad" prefWidth="100"/>
-                    <Button fx:id="btnAgregar" text="Agregar" onAction="#agregarAlCarrito"/>
+            <!-- GRID de tarjetas de combos -->
+            <ScrollPane fx:id="scrollCombos"
+                        hbarPolicy="NEVER"
+                        vbarPolicy="AS_NEEDED"
+                        fitToWidth="true"
+                        prefHeight="450"
+                        styleClass="cartelera-scroll">
+                <content>
+                    <FlowPane fx:id="gridCombos"
+                              hgap="18"
+                              vgap="18"
+                              prefWrapLength="900"
+                              styleClass="pelicula-grid"/>
+                </content>
+            </ScrollPane>
+
+
+            <!-- Resumen del pedido -->
+            <VBox spacing="10" styleClass="conf-summary-card">
+                <Label text="Resumen de pedido" styleClass="detalle-section-title"/>
+
+                <ListView fx:id="listViewCarrito"
+                          prefHeight="160"/>
+
+                <HBox spacing="12" alignment="CENTER_RIGHT">
+                    <Label fx:id="lblTotalConfiteria"
+                           text="Total confitería: $ 0.00"
+                           styleClass="conf-total-label"/>
+
+                    <Button fx:id="btnContinuar"
+                            text="Proceder al pago"
+                            onAction="#continuar"
+                            styleClass="primary-button"/>
                 </HBox>
             </VBox>
-
-            <!-- Carrito -->
-            <VBox GridPane.columnIndex="2" spacing="8">
-                <Label text="Carrito (doble clic para quitar)"/>
-                <ListView fx:id="listViewCarrito" prefHeight="480"/>
-            </VBox>
-        </GridPane>
+        </VBox>
     </center>
-
-    <bottom>
-        <HBox spacing="10" alignment="CENTER_RIGHT">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
-            <Button fx:id="btnContinuar" text="Continuar" onAction="#continuar" defaultButton="true"/>
-        </HBox>
-    </bottom>
 </BorderPane>

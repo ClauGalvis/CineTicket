@@ -328,4 +328,113 @@ class CompraServiceTest {
         verify(compraDAO, never()).actualizar(any());
     }
 
+    // =============== Tests historial de compras ===============
+
+    @Test
+    void obtenerHistorialCompras_nullUsuario_lanzaValidacionException() {
+        assertThrows(ValidacionException.class, () -> service.obtenerHistorialCompras(null));
+        verify(compraDAO, never()).listarPorUsuario(anyInt());
+    }
+
+    @Test
+    void obtenerHistorialCompras_sinCompras_retornaListaVacia() {
+        Integer usuarioId = 10;
+        when(compraDAO.listarPorUsuario(usuarioId)).thenReturn(List.of());
+
+        var resultado = service.obtenerHistorialCompras(usuarioId);
+
+        assertNotNull(resultado);
+        assertTrue(resultado.isEmpty());
+        verify(compraDAO).listarPorUsuario(usuarioId);
+    }
+
+    @Test
+    void obtenerHistorialCompras_ordenadoPorFechaDesc() {
+        Integer usuarioId = 20;
+
+        // Compras en orden aleatorio
+        Compra c1 = new Compra();
+        c1.setIdCompra(1);
+        c1.setUsuarioId(usuarioId);
+        c1.setFechaHoraCompra(LocalDateTime.of(2025, 11, 10, 10, 0));
+
+        Compra c2 = new Compra();
+        c2.setIdCompra(2);
+        c2.setUsuarioId(usuarioId);
+        c2.setFechaHoraCompra(LocalDateTime.of(2025, 11, 12, 9, 30)); // la más reciente
+
+        Compra c3 = new Compra();
+        c3.setIdCompra(3);
+        c3.setUsuarioId(usuarioId);
+        c3.setFechaHoraCompra(LocalDateTime.of(2025, 11, 11, 18, 0));
+
+        // El DAO las devuelve desordenadas
+        when(compraDAO.listarPorUsuario(usuarioId)).thenReturn(List.of(c1, c2, c3));
+
+        // Act
+        var resultado = service.obtenerHistorialCompras(usuarioId);
+
+        // Assert
+        assertEquals(3, resultado.size());
+        // Debe quedar: c2 (12), c3 (11), c1 (10)
+        assertEquals(2, resultado.get(0).getIdCompra());
+        assertEquals(3, resultado.get(1).getIdCompra());
+        assertEquals(1, resultado.get(2).getIdCompra());
+
+        verify(compraDAO).listarPorUsuario(usuarioId);
+    }
+
+    @Test
+    void obtenerEntradasDeCompra_nullId_lanzaValidacionException() {
+        assertThrows(ValidacionException.class, () -> service.obtenerEntradasDeCompra(null));
+        verify(entradaDAO, never()).listarPorCompra(anyInt());
+    }
+
+    @Test
+    void obtenerEntradasDeCompra_ok_delegaEnDao() {
+        Integer compraId = 50;
+
+        Entrada e1 = new Entrada(); e1.setIdEntrada(1); e1.setCompraId(compraId);
+        Entrada e2 = new Entrada(); e2.setIdEntrada(2); e2.setCompraId(compraId);
+
+        when(entradaDAO.listarPorCompra(compraId)).thenReturn(List.of(e1, e2));
+
+        var resultado = service.obtenerEntradasDeCompra(compraId);
+
+        assertNotNull(resultado);
+        assertEquals(2, resultado.size());
+        assertEquals(1, resultado.get(0).getIdEntrada());
+        assertEquals(2, resultado.get(1).getIdEntrada());
+
+        verify(entradaDAO).listarPorCompra(compraId);
+    }
+
+    @Test
+    void obtenerConfiteriaDeCompra_nullId_lanzaValidacionException() {
+        assertThrows(ValidacionException.class, () -> service.obtenerConfiteriaDeCompra(null));
+        verify(compraConfiteriaDAO, never()).listarPorCompra(anyInt());
+    }
+
+    @Test
+    void obtenerConfiteriaDeCompra_ok_delegaEnDao() {
+        Integer compraId = 60;
+
+        CompraConfiteria c1 = new CompraConfiteria(); c1.setIdCompraConfiteria(1); c1.setCompraId(compraId);
+        CompraConfiteria c2 = new CompraConfiteria(); c2.setIdCompraConfiteria(2); c2.setCompraId(compraId);
+
+        when(compraConfiteriaDAO.listarPorCompra(compraId)).thenReturn(List.of(c1, c2));
+
+        var resultado = service.obtenerConfiteriaDeCompra(compraId);
+
+        assertNotNull(resultado);
+        assertEquals(2, resultado.size());
+        assertEquals(1, resultado.get(0).getIdCompraConfiteria());
+        assertEquals(2, resultado.get(1).getIdCompraConfiteria());
+
+        verify(compraConfiteriaDAO).listarPorCompra(compraId);
+    }
+
+
+
+
 }

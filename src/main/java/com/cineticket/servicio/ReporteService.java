@@ -10,6 +10,10 @@ import com.cineticket.modelo.Entrada;
 import com.cineticket.modelo.Pelicula;
 import com.cineticket.modelo.Funcion;
 import com.cineticket.modelo.CompraConfiteria;
+import com.cineticket.excepcion.AutenticacionException;
+import com.cineticket.util.SessionManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -25,6 +29,8 @@ import java.util.stream.Collectors;
  * - Retorna estructuras simples para que la UI las grafique.
  */
 public class ReporteService {
+
+    private static final Logger log = LoggerFactory.getLogger(ReporteService.class);
 
     private final CompraDAO compraDAO;
     private final EntradaDAO entradaDAO;
@@ -42,6 +48,15 @@ public class ReporteService {
         this.compraConfiteriaDAO = Objects.requireNonNull(compraConfiteriaDAO);
         this.peliculaDAO = Objects.requireNonNull(peliculaDAO);
         this.funcionDAO = Objects.requireNonNull(funcionDAO);
+        log.debug("ReporteService inicializado");
+    }
+
+    /** Lanza excepción si el usuario actual no es ADMIN. */
+    private void requireAdmin() {
+        if (!SessionManager.getInstance().esAdministrador()) {
+            log.warn("Acceso no autorizado a reportes: usuario actual no es ADMIN");
+            throw new AutenticacionException("Solo un administrador puede acceder a los reportes.");
+        }
     }
 
     /**
@@ -57,7 +72,11 @@ public class ReporteService {
      *  - "porHora": Map<Integer, BigDecimal>  (ingresos totales por hora)
      */
     public Map<String, Object> generarReporteVentasPorDia(LocalDate fecha) {
+        requireAdmin();
         Objects.requireNonNull(fecha, "fecha requerida");
+
+        log.info("Generando reporte de ventas por día para {}", fecha);
+
         LocalDateTime inicio = fecha.atStartOfDay();
         LocalDateTime fin = fecha.plusDays(1).atStartOfDay().minusNanos(1);
 
@@ -99,6 +118,10 @@ public class ReporteService {
         out.put("ingresosConfiteria", ingresosConf.setScale(2, RoundingMode.HALF_UP));
         out.put("ingresosTotales", ingresosEntradas.add(ingresosConf).setScale(2, RoundingMode.HALF_UP));
         out.put("porHora", porHora);
+
+        log.info("Reporte de ventas por día generado para {}: compras={}, entradas={}, combos={}, ingresosTotales={}",
+                fecha, totalCompras, totalEntradas, totalCombos, out.get("ingresosTotales"));
+
         return out;
     }
 
@@ -114,12 +137,17 @@ public class ReporteService {
     public Map<String, Object> generarReporteVentasPorPelicula(Integer peliculaId,
                                                                LocalDate fechaInicio,
                                                                LocalDate fechaFin) {
+        requireAdmin();
         Objects.requireNonNull(peliculaId, "peliculaId requerido");
         Objects.requireNonNull(fechaInicio, "fechaInicio requerida");
         Objects.requireNonNull(fechaFin, "fechaFin requerida");
 
+        log.info("Generando reporte de ventas por película {} entre {} y {}",
+                peliculaId, fechaInicio, fechaFin);
+
         Pelicula peli = peliculaDAO.buscarPorId(peliculaId);
         if (peli == null) {
+            log.warn("Película {} no encontrada al generar reporte", peliculaId);
             throw new IllegalArgumentException("Película no encontrada: " + peliculaId);
         }
 
@@ -150,6 +178,10 @@ public class ReporteService {
         out.put("entradasVendidas", entradasVendidas);
         out.put("funcionesAfectadas", funciones);
         out.put("ingresosAproxEntradas", ingresos.setScale(2, RoundingMode.HALF_UP));
+
+        log.info("Reporte por película generado: peliculaId={}, titulo='{}', entradasVendidas={}, ingresos={}",
+                peliculaId, peli.getTitulo(), entradasVendidas, out.get("ingresosAproxEntradas"));
+
         return out;
     }
 
@@ -160,8 +192,11 @@ public class ReporteService {
      *  - "totalCombos": int
      */
     public Map<String, Object> generarReporteVentasConfiteria(LocalDate fechaInicio, LocalDate fechaFin) {
+        requireAdmin();
         Objects.requireNonNull(fechaInicio, "fechaInicio requerida");
         Objects.requireNonNull(fechaFin, "fechaFin requerida");
+
+        log.info("Generando reporte de ventas de confitería entre {} y {}", fechaInicio, fechaFin);
 
         LocalDateTime inicio = fechaInicio.atStartOfDay();
         LocalDateTime fin = fechaFin.plusDays(1).atStartOfDay().minusNanos(1);
@@ -172,6 +207,10 @@ public class ReporteService {
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("ventasPorCombo", ventas);
         out.put("totalCombos", total);
+
+        log.info("Reporte de confitería generado: combosDistintos={}, totalCombosVendidos={}",
+                ventas.size(), total);
+
         return out;
     }
 
@@ -183,9 +222,12 @@ public class ReporteService {
     public List<Map<String, Object>> obtenerTopPeliculas(int limite,
                                                          LocalDate fechaInicio,
                                                          LocalDate fechaFin) {
+        requireAdmin();
         if (limite <= 0) limite = 5;
         Objects.requireNonNull(fechaInicio);
         Objects.requireNonNull(fechaFin);
+
+        log.info("Obteniendo TOP {} películas entre {} y {}", limite, fechaInicio, fechaFin);
 
         LocalDateTime inicio = fechaInicio.atStartOfDay();
         LocalDateTime fin = fechaFin.plusDays(1).atStartOfDay().minusNanos(1);
@@ -213,7 +255,7 @@ public class ReporteService {
             titulos.put(pId, p != null ? p.getTitulo() : ("Película " + pId));
         }
 
-        return agg.entrySet().stream()
+        List<Map<String, Object>> lista = agg.entrySet().stream()
                 .sorted((e1, e2) -> Integer.compare(e2.getValue().entradas, e1.getValue().entradas))
                 .limit(limite)
                 .map(e -> {
@@ -227,6 +269,9 @@ public class ReporteService {
                     return row;
                 })
                 .collect(Collectors.toList());
+
+        log.info("Top películas generado: {} filas", lista.size());
+        return lista;
     }
 
     /**
@@ -237,16 +282,19 @@ public class ReporteService {
     public List<Map<String, Object>> obtenerTopCombos(int limite,
                                                       LocalDate fechaInicio,
                                                       LocalDate fechaFin) {
+        requireAdmin();
         if (limite <= 0) limite = 5;
         Objects.requireNonNull(fechaInicio);
         Objects.requireNonNull(fechaFin);
+
+        log.info("Obteniendo TOP {} combos entre {} y {}", limite, fechaInicio, fechaFin);
 
         LocalDateTime inicio = fechaInicio.atStartOfDay();
         LocalDateTime fin = fechaFin.plusDays(1).atStartOfDay().minusNanos(1);
 
         Map<Integer, Integer> ventas = compraConfiteriaDAO.obtenerVentasPorCombo(inicio, fin);
 
-        return ventas.entrySet().stream()
+        List<Map<String, Object>> lista = ventas.entrySet().stream()
                 .sorted((a, b) -> Integer.compare(b.getValue(), a.getValue()))
                 .limit(limite)
                 .map(e -> {
@@ -256,6 +304,9 @@ public class ReporteService {
                     return row;
                 })
                 .collect(Collectors.toList());
+
+        log.info("Top combos generado: {} filas", lista.size());
+        return lista;
     }
 
     /**
@@ -263,8 +314,12 @@ public class ReporteService {
      * Usa total_general de la tabla compra (columna GENERATED ALWAYS).
      */
     public BigDecimal calcularIngresosTotales(LocalDate fechaInicio, LocalDate fechaFin) {
+        requireAdmin();
         Objects.requireNonNull(fechaInicio, "fechaInicio requerida");
         Objects.requireNonNull(fechaFin, "fechaFin requerida");
+
+        log.info("Calculando ingresos totales entre {} y {}", fechaInicio, fechaFin);
+
 
         LocalDateTime inicio = fechaInicio.atStartOfDay();
         LocalDateTime fin = fechaFin.plusDays(1).atStartOfDay().minusNanos(1);
@@ -274,7 +329,12 @@ public class ReporteService {
         for (Compra c : compras) {
             total = total.add(nullSafe(c.getTotalGeneral()));
         }
-        return total.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal totalEscalado = total.setScale(2, RoundingMode.HALF_UP);
+
+        log.info("Ingresos totales calculados para rango {} - {}: {}",
+                fechaInicio, fechaFin, totalEscalado);
+
+        return totalEscalado;
     }
 
     // ==== Helpers internos ====

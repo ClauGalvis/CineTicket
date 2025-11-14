@@ -33,8 +33,12 @@ public class AuthService {
     /** Login: valida credenciales y establece sesión */
     public Usuario iniciarSesion(String nombreUsuario, String contrasena) {
         if (isBlank(nombreUsuario) || isBlank(contrasena)) {
+            log.warn("Login fallido: usuario o contraseña vacíos");
             throw new ValidacionException("Usuario y contraseña son obligatorios.");
         }
+
+        log.debug("Intento de inicio de sesión para usuario '{}'", nombreUsuario);
+
 
         Optional<Usuario> opt = usuarioDAO.buscarPorNombreUsuario(nombreUsuario);
         Usuario u = opt.orElseThrow(() -> {
@@ -47,6 +51,7 @@ public class AuthService {
             throw new AutenticacionException("Credenciales inválidas.");
         }
         if (!u.isActivo()) {
+            log.warn("Login fallido: cuenta inactiva para usuario '{}'", nombreUsuario);
             throw new AutenticacionException("La cuenta está desactivada.");
         }
 
@@ -60,12 +65,16 @@ public class AuthService {
                                     String correo,
                                     String nombreUsuario,
                                     String contrasena) {
+        log.debug("Intento de registro para correo '{}' y usuario '{}'", correo, nombreUsuario);
+
         validarDatosRegistro(correo, nombreUsuario, contrasena);
 
         if (usuarioDAO.existeCorreo(correo)) {
+            log.warn("Registro fallido: correo '{}' ya está registrado", correo);
             throw new ValidacionException("El correo ya está registrado.");
         }
         if (usuarioDAO.existeNombreUsuario(nombreUsuario)) {
+            log.warn("Registro fallido: nombre de usuario '{}' ya está en uso", nombreUsuario);
             throw new ValidacionException("El nombre de usuario ya está en uso.");
         }
 
@@ -77,7 +86,7 @@ public class AuthService {
         nuevo.setNombreUsuario(nombreUsuario);
         nuevo.setContrasenaHash(hash);
         nuevo.setRol(Rol.USUARIO);
-        // fechaRegistro y activo se inicializan en el VO (según tu diseño)
+        // fechaRegistro y activo se inicializan en el VO
 
         usuarioDAO.crear(nuevo); // setea id vía generated keys en el DAO
         log.info("Usuario '{}' registrado con ID {}", nuevo.getNombreUsuario(), nuevo.getIdUsuario());
@@ -91,15 +100,24 @@ public class AuthService {
 
     /** Cierra sesión (limpia SessionManager) */
     public void cerrarSesion() {
+        Usuario actual = SessionManager.getInstance().getUsuarioActual();
         SessionManager.getInstance().cerrarSesion();
-        log.info("Sesión cerrada.");
+        if (actual != null) {
+            log.info("Sesión cerrada para usuario '{}'", actual.getNombreUsuario());
+        } else {
+            log.info("Sesión cerrada sin usuario autenticado");
+        }
     }
 
-    /** Cambio de contraseña (opcional en MVP, pero listo) */
+    /** Cambio de contraseña*/
     public boolean cambiarContrasena(Integer usuarioId,
                                      String contrasenaActual,
                                      String contrasenaNueva) {
-        if (usuarioId == null) throw new ValidacionException("usuarioId es obligatorio.");
+
+        if (usuarioId == null) {
+            log.warn("Intento de cambio de contraseña con usuarioId null");
+            throw new ValidacionException("usuarioId es obligatorio.");
+        }
         if (isBlank(contrasenaActual) || isBlank(contrasenaNueva)) {
             throw new ValidacionException("Debe indicar la contraseña actual y la nueva.");
         }
@@ -108,9 +126,13 @@ public class AuthService {
         }
 
         Usuario u = usuarioDAO.buscarPorId(usuarioId)
-                .orElseThrow(() -> new ValidacionException("Usuario no encontrado."));
+                .orElseThrow(() -> {
+                    log.warn("Cambio de contraseña fallido: usuario con ID {} no encontrado", usuarioId);
+                    return new ValidacionException("Usuario no encontrado.");
+                });
 
         if (!PasswordUtil.verificarPassword(contrasenaActual, u.getContrasenaHash())) {
+            log.warn("Cambio de contraseña fallido: contraseña actual incorrecta para usuario '{}'", u.getNombreUsuario());
             throw new AutenticacionException("La contraseña actual no es correcta.");
         }
 

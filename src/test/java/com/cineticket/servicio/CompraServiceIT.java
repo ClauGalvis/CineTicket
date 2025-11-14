@@ -27,13 +27,13 @@ import static org.mockito.Mockito.*;
 
 class CompraServiceIT {
 
-    // DAOs REALES (con tu HikariCP)
+    // DAOs REALES
     private final CompraDAOImpl compraDAO = new CompraDAOImpl();
     private final EntradaDAOImpl entradaDAO = new EntradaDAOImpl();
     private final CompraConfiteriaDAOImpl compraConfDAO = new CompraConfiteriaDAOImpl();
     private final FuncionDAOImpl funcionDAO = new FuncionDAOImpl();
 
-    // Servicios “dobles” (no se usan en este IT, pero el ctor los pide)
+    // Servicios “dobles”
     private final ReservaService reservaService = mock(ReservaService.class, withSettings().lenient());
     private final ConfiteriaService confiteriaService = mock(ConfiteriaService.class, withSettings().lenient());
 

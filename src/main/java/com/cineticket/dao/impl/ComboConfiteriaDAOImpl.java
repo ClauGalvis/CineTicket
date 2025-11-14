@@ -10,7 +10,8 @@ import java.util.List;
 
 public class ComboConfiteriaDAOImpl extends BaseDAO implements ComboConfiteriaDAO {
 
-    public ComboConfiteriaDAOImpl() {}
+    public ComboConfiteriaDAOImpl() {
+    }
 
     private static void validar(ComboConfiteria c) {
         if (c.getNombreCombo() == null || c.getNombreCombo().isBlank())
@@ -23,10 +24,10 @@ public class ComboConfiteriaDAOImpl extends BaseDAO implements ComboConfiteriaDA
     public Integer crear(ComboConfiteria c) {
         validar(c);
         String sql = """
-            INSERT INTO combo_confiteria
-              (nombre_combo, descripcion, precio, imagen_url, disponible, categoria)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """;
+                    INSERT INTO combo_confiteria
+                      (nombre_combo, descripcion, precio, imagen_url, disponible, categoria)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """;
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -102,10 +103,10 @@ public class ComboConfiteriaDAOImpl extends BaseDAO implements ComboConfiteriaDA
     public boolean actualizar(ComboConfiteria c) {
         validar(c);
         String sql = """
-            UPDATE combo_confiteria
-               SET nombre_combo = ?, descripcion = ?, precio = ?, imagen_url = ?, disponible = ?, categoria = ?
-             WHERE id_combo = ?
-        """;
+                    UPDATE combo_confiteria
+                       SET nombre_combo = ?, descripcion = ?, precio = ?, imagen_url = ?, disponible = ?, categoria = ?
+                     WHERE id_combo = ?
+                """;
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 

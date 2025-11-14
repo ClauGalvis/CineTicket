@@ -11,14 +11,20 @@ import java.util.List;
 
 public class EntradaDAOImpl extends BaseDAO implements EntradaDAO {
 
-    public EntradaDAOImpl() {}
+    public EntradaDAOImpl() {
+    }
 
     // ===== Helpers enum =====
-    private static String toDbEstado(EstadoEntrada e) { return e.name(); }
-    private static EstadoEntrada fromDbEstado(String s) { return EstadoEntrada.valueOf(s); }
+    private static String toDbEstado(EstadoEntrada e) {
+        return e.name();
+    }
+
+    private static EstadoEntrada fromDbEstado(String s) {
+        return EstadoEntrada.valueOf(s);
+    }
 
     private static void validar(Entrada e) {
-        if (e.getCompraId() == null)  throw new IllegalArgumentException("compraId requerido");
+        if (e.getCompraId() == null) throw new IllegalArgumentException("compraId requerido");
         if (e.getFuncionId() == null) throw new IllegalArgumentException("funcionId requerido");
         if (e.getAsientoId() == null) throw new IllegalArgumentException("asientoId requerido");
         if (e.getPrecioUnitario() == null || e.getPrecioUnitario().signum() < 0)
@@ -30,9 +36,9 @@ public class EntradaDAOImpl extends BaseDAO implements EntradaDAO {
     public Integer crear(Entrada e) {
         validar(e);
         String sql = """
-            INSERT INTO entrada (compra_id, funcion_id, asiento_id, precio_unitario, estado_entrada)
-            VALUES (?, ?, ?, ?, ?::estado_entrada)
-        """;
+                    INSERT INTO entrada (compra_id, funcion_id, asiento_id, precio_unitario, estado_entrada)
+                    VALUES (?, ?, ?, ?, ?::estado_entrada)
+                """;
         try (Connection c = getConnection();
              PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, e.getCompraId());
@@ -113,10 +119,10 @@ public class EntradaDAOImpl extends BaseDAO implements EntradaDAO {
     public boolean actualizar(Entrada e) {
         validar(e);
         String sql = """
-            UPDATE entrada
-               SET compra_id = ?, funcion_id = ?, asiento_id = ?, precio_unitario = ?, estado_entrada = ?::estado_entrada
-             WHERE id_entrada = ?
-        """;
+                    UPDATE entrada
+                       SET compra_id = ?, funcion_id = ?, asiento_id = ?, precio_unitario = ?, estado_entrada = ?::estado_entrada
+                     WHERE id_entrada = ?
+                """;
         try (Connection c = getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, e.getCompraId());
@@ -165,9 +171,9 @@ public class EntradaDAOImpl extends BaseDAO implements EntradaDAO {
     @Override
     public boolean verificarAsientoDisponible(Integer funcionId, Integer asientoId) {
         String sql = """
-            SELECT COUNT(*) FROM entrada
-             WHERE funcion_id = ? AND asiento_id = ? AND estado_entrada = 'ACTIVA'
-        """;
+                    SELECT COUNT(*) FROM entrada
+                     WHERE funcion_id = ? AND asiento_id = ? AND estado_entrada = 'ACTIVA'
+                """;
         try (Connection c = getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setInt(1, funcionId);

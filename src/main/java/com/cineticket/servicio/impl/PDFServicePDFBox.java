@@ -134,17 +134,34 @@ public class PDFServicePDFBox implements PDFService {
 
     @Override
     public boolean guardarComprobante(Compra compra, String rutaDestino) {
-        if (compra.getRutaComprobantePdf() == null) return false;
+        // Validaciones defensivas
+        if (compra == null) {
+            return false;
+        }
+        if (compra.getRutaComprobantePdf() == null || compra.getRutaComprobantePdf().isBlank()) {
+            return false;
+        }
+        if (rutaDestino == null || rutaDestino.isBlank()) {
+            return false;
+        }
+
         try {
             Path src = Path.of(compra.getRutaComprobantePdf());
             Path dst = Path.of(rutaDestino);
-            Files.createDirectories(dst.getParent() != null ? dst.getParent() : dst.toAbsolutePath().getParent());
+
+            // Asegurar que exista la carpeta destino, si tiene padre
+            Path parent = dst.toAbsolutePath().getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+
             Files.copy(src, dst, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             return true;
         } catch (IOException e) {
             return false;
         }
     }
+
 
     // ===== Helpers de dibujo =====
     private float title(PDPageContentStream cs, String text, float x, float y, int size) throws IOException {

@@ -15,14 +15,15 @@ import java.util.List;
  */
 public class AsientoDAOImpl extends BaseDAO implements AsientoDAO {
 
-    public AsientoDAOImpl() {}
+    public AsientoDAOImpl() {
+    }
 
     @Override
     public Integer crear(Asiento a) {
         String sql = """
-            INSERT INTO asiento (sala_id, fila, numero, tipo_asiento, activo)
-            VALUES (?, ?, ?, ?::tipo_asiento, ?)
-        """;
+                    INSERT INTO asiento (sala_id, fila, numero, tipo_asiento, activo)
+                    VALUES (?, ?, ?, ?::tipo_asiento, ?)
+                """;
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -88,10 +89,10 @@ public class AsientoDAOImpl extends BaseDAO implements AsientoDAO {
     @Override
     public boolean actualizar(Asiento a) {
         String sql = """
-            UPDATE asiento
-               SET sala_id = ?, fila = ?, numero = ?, tipo_asiento = ?::tipo_asiento, activo = ?
-             WHERE id_asiento = ?
-        """;
+                    UPDATE asiento
+                       SET sala_id = ?, fila = ?, numero = ?, tipo_asiento = ?::tipo_asiento, activo = ?
+                     WHERE id_asiento = ?
+                """;
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, a.getSalaId());

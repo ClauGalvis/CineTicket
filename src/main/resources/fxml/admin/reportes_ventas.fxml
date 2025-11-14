@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.cineticket.controlador.admin.ReportesVentasController"
+            stylesheets="@../../css/styles.css">
+
+    <!-- SIDEBAR IZQUIERDO -->
+    <left>
+        <VBox spacing="20" styleClass="sidebar">
+            <padding>
+                <Insets top="24" right="12" bottom="12" left="12"/>
+            </padding>
+
+            <!-- Logo pequeño -->
+            <ImageView fitHeight="28" preserveRatio="true">
+                <image>
+                    <Image url="@../../img/logo_cinetick.png"/>
+                </image>
+            </ImageView>
+
+            <VBox spacing="8">
+                <Button text="Gestión de cartelera"
+                        styleClass="sidebar-button"
+                        onAction="#irGestionCartelera"/>
+                <Button text="Reportes de ventas"
+                        styleClass="sidebar-button-selected"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- TOPBAR (Logout) -->
+    <top>
+        <HBox alignment="CENTER_RIGHT" styleClass="topbar">
+            <padding>
+                <Insets top="12" right="18" bottom="12" left="12"/>
+            </padding>
+
+            <Button text="Cerrar sesión"
+                    styleClass="logout-button"
+                    onAction="#cerrarSesion"/>
+        </HBox>
+    </top>
+
+    <!-- CONTENIDO PRINCIPAL CON SCROLL -->
+    <center>
+        <ScrollPane fitToWidth="true"
+                    fitToHeight="false"
+                    hbarPolicy="NEVER"
+                    vbarPolicy="AS_NEEDED">
+            <content>
+                <VBox spacing="16" styleClass="cartelera-main">
+                    <padding>
+                        <Insets top="18" right="24" bottom="24" left="24"/>
+                    </padding>
+
+                    <!-- Título -->
+                    <Label text="Reportes de ventas" styleClass="cartelera-title"/>
+
+                    <!-- TARJETA: Filtros -->
+                    <VBox spacing="12" styleClass="card">
+                        <padding>
+                            <Insets top="18" right="18" bottom="18" left="18"/>
+                        </padding>
+
+                        <Label text="Filtros" styleClass="card-title"/>
+
+                        <GridPane hgap="12" vgap="10">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="33"/>
+                                <ColumnConstraints percentWidth="33"/>
+                                <ColumnConstraints percentWidth="34"/>
+                            </columnConstraints>
+
+                            <!-- Fecha inicio -->
+                            <Label text="Fecha inicio" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <DatePicker fx:id="dpInicio"
+                                        GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+
+                            <!-- Fecha fin -->
+                            <Label text="Fecha fin" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                            <DatePicker fx:id="dpFin"
+                                        GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                            <Label fx:id="lblRangoSeleccionado"
+                                   text=""
+                                   styleClass="empty-text"
+                                   GridPane.rowIndex="2" GridPane.columnIndex="0" GridPane.columnSpan="2"/>
+
+                            <!-- Botón aplicar -->
+                            <HBox spacing="8" alignment="CENTER_RIGHT"
+                                  GridPane.rowIndex="1" GridPane.columnIndex="2" GridPane.rowSpan="2">
+                                <Button text="Aplicar filtros"
+                                        styleClass="primary-button"
+                                        onAction="#aplicarFiltros"/>
+                            </HBox>
+                        </GridPane>
+                    </VBox>
+
+                    <!-- TARJETA: KPIs -->
+                    <VBox spacing="12" styleClass="card">
+                        <padding>
+                            <Insets top="18" right="18" bottom="18" left="18"/>
+                        </padding>
+
+                        <Label text="Resumen de ventas" styleClass="card-title"/>
+
+                        <HBox spacing="16">
+                            <VBox spacing="4" styleClass="kpi-card">
+                                <Label text="Ingresos totales" styleClass="metric-title"/>
+                                <Label fx:id="lblTotalIngresos"
+                                       text="0"
+                                       styleClass="metric-value"/>
+                            </VBox>
+
+                            <VBox spacing="4" styleClass="kpi-card">
+                                <Label text="Entradas vendidas" styleClass="metric-title"/>
+                                <Label fx:id="lblTotalEntradas"
+                                       text="0"
+                                       styleClass="metric-value"/>
+                            </VBox>
+
+                            <VBox spacing="4" styleClass="kpi-card">
+                                <Label text="Combos vendidos" styleClass="metric-title"/>
+                                <Label fx:id="lblTotalCombos"
+                                       text="0"
+                                       styleClass="metric-value"/>
+                            </VBox>
+
+                            <VBox spacing="4" styleClass="kpi-card">
+                                <Label text="Precio promedio entrada" styleClass="metric-title"/>
+                                <Label fx:id="lblPrecioPromedio"
+                                       text="0"
+                                       styleClass="metric-value"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- TARJETA: Ingresos + Top películas -->
+                    <VBox spacing="12" styleClass="card">
+                        <padding>
+                            <Insets top="18" right="18" bottom="18" left="18"/>
+                        </padding>
+
+                        <GridPane hgap="16" vgap="10">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="50"/>
+                                <ColumnConstraints percentWidth="50"/>
+                            </columnConstraints>
+
+                            <!-- Ingresos por día -->
+                            <VBox spacing="8"
+                                  GridPane.rowIndex="0" GridPane.columnIndex="0">
+                                <Label text="Ingresos por día" styleClass="card-title"/>
+                                <BarChart fx:id="chartIngresosPorDia"
+                                          animated="false"
+                                          prefHeight="150"
+                                          maxHeight="320">
+                                    <xAxis>
+                                        <CategoryAxis label="Día"/>
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Ingresos"/>
+                                    </yAxis>
+                                </BarChart>
+                            </VBox>
+
+                            <!-- Top películas -->
+                            <VBox spacing="8"
+                                  GridPane.rowIndex="0" GridPane.columnIndex="1">
+                                <Label text="Top películas por entradas" styleClass="card-title"/>
+                                <PieChart fx:id="chartTopPeliculas"
+                                          prefHeight="150"
+                                          maxHeight="320"/>
+                            </VBox>
+                        </GridPane>
+                    </VBox>
+
+                    <!-- TARJETA: Tendencia de entradas -->
+                    <VBox spacing="12" styleClass="card">
+                        <padding>
+                            <Insets top="18" right="18" bottom="18" left="18"/>
+                        </padding>
+
+                        <Label text="Tendencia de entradas por día" styleClass="card-title"/>
+
+                        <LineChart fx:id="chartEntradasPorDia"
+                                   animated="false"
+                                   prefHeight="150"
+                                   maxHeight="320">
+                            <xAxis>
+                                <CategoryAxis label="Día"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis label="Entradas"/>
+                            </yAxis>
+                        </LineChart>
+                    </VBox>
+
+                </VBox>
+            </content>
+        </ScrollPane>
+    </center>
+
+
+</BorderPane>

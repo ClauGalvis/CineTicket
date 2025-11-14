@@ -2,6 +2,7 @@ package com.cineticket.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -121,56 +122,127 @@ public final class ConfiguracionApp {
     // ============================================================================
     // CONFIGURACION DE BASE DE DATOS
     // ============================================================================
-    public static String getDbUrl() { return obtenerPropiedad(DB_URL, "jdbc:postgresql://localhost:5433/cineticket"); }
-    public static String getDbUsername() { return obtenerPropiedad(DB_USERNAME, "postgres"); }
-    public static String getDbPassword() { return obtenerPropiedad(DB_PASSWORD, ""); }
-    public static int getDbPoolSizeMin() { return obtenerPropiedadInt(DB_POOL_MIN, 5); }
-    public static int getDbPoolSizeMax() { return obtenerPropiedadInt(DB_POOL_MAX, 20); }
-    public static long getDbConnectionTimeout() { return obtenerPropiedadLong(DB_CONNECTION_TIMEOUT, 30000L); }
-    public static long getDbIdleTimeout() { return obtenerPropiedadLong(DB_IDLE_TIMEOUT, 600000L); }
-    public static long getDbMaxLifetime() { return obtenerPropiedadLong(DB_MAX_LIFETIME, 1800000L); }
-    public static String getDbPoolName() { return obtenerPropiedad(DB_POOL_NAME, "CineTicketPool"); }
+    public static String getDbUrl() {
+        return obtenerPropiedad(DB_URL, "jdbc:postgresql://localhost:5433/cineticket");
+    }
+
+    public static String getDbUsername() {
+        return obtenerPropiedad(DB_USERNAME, "postgres");
+    }
+
+    public static String getDbPassword() {
+        return obtenerPropiedad(DB_PASSWORD, "");
+    }
+
+    public static int getDbPoolSizeMin() {
+        return obtenerPropiedadInt(DB_POOL_MIN, 5);
+    }
+
+    public static int getDbPoolSizeMax() {
+        return obtenerPropiedadInt(DB_POOL_MAX, 20);
+    }
+
+    public static long getDbConnectionTimeout() {
+        return obtenerPropiedadLong(DB_CONNECTION_TIMEOUT, 30000L);
+    }
+
+    public static long getDbIdleTimeout() {
+        return obtenerPropiedadLong(DB_IDLE_TIMEOUT, 600000L);
+    }
+
+    public static long getDbMaxLifetime() {
+        return obtenerPropiedadLong(DB_MAX_LIFETIME, 1800000L);
+    }
+
+    public static String getDbPoolName() {
+        return obtenerPropiedad(DB_POOL_NAME, "CineTicketPool");
+    }
 
     // ============================================================================
     // SEGURIDAD
     // ============================================================================
-    public static int getBcryptRounds() { return obtenerPropiedadInt(BCRYPT_ROUNDS, 12); }
-    public static int getSessionTimeout() { return obtenerPropiedadInt(SESSION_TIMEOUT, 30); }
+    public static int getBcryptRounds() {
+        return obtenerPropiedadInt(BCRYPT_ROUNDS, 12);
+    }
+
+    public static int getSessionTimeout() {
+        return obtenerPropiedadInt(SESSION_TIMEOUT, 30);
+    }
 
     // ============================================================================
     // PDF
     // ============================================================================
-    public static String getPdfOutputDirectory() { return obtenerPropiedad(PDF_OUTPUT_DIR, "./comprobantes/"); }
-    public static String getPdfFilenamePrefix() { return obtenerPropiedad(PDF_FILENAME_PREFIX, "comprobante_"); }
-    public static boolean getPdfIncludeDate() { return obtenerPropiedadBoolean(PDF_INCLUDE_DATE, true); }
+    public static String getPdfOutputDirectory() {
+        return obtenerPropiedad(PDF_OUTPUT_DIR, "./comprobantes/");
+    }
+
+    public static String getPdfFilenamePrefix() {
+        return obtenerPropiedad(PDF_FILENAME_PREFIX, "comprobante_");
+    }
+
+    public static boolean getPdfIncludeDate() {
+        return obtenerPropiedadBoolean(PDF_INCLUDE_DATE, true);
+    }
 
     // ============================================================================
     // LOGGING
     // ============================================================================
-    public static String getLogLevel() { return obtenerPropiedad(LOG_LEVEL, "INFO"); }
-    public static String getLogFilePath() { return obtenerPropiedad(LOG_FILE_PATH, "./logs/cineticket.log"); }
+    public static String getLogLevel() {
+        return obtenerPropiedad(LOG_LEVEL, "INFO");
+    }
+
+    public static String getLogFilePath() {
+        return obtenerPropiedad(LOG_FILE_PATH, "./logs/cineticket.log");
+    }
 
     // ============================================================================
     // DATOS DE APLICACION
     // ============================================================================
-    public static String getAppName() { return obtenerPropiedad(APP_NAME, "CineTicket"); }
-    public static String getAppVersion() { return obtenerPropiedad(APP_VERSION, "1.0.0"); }
-    public static String getAppAuthor() { return obtenerPropiedad(APP_AUTHOR, "Claudia Patricia Galvis"); }
+    public static String getAppName() {
+        return obtenerPropiedad(APP_NAME, "CineTicket");
+    }
+
+    public static String getAppVersion() {
+        return obtenerPropiedad(APP_VERSION, "1.0.0");
+    }
+
+    public static String getAppAuthor() {
+        return obtenerPropiedad(APP_AUTHOR, "Claudia Patricia Galvis");
+    }
 
     // ============================================================================
     // INTERFAZ DE USUARIO
     // ============================================================================
-    public static int getUiWindowWidth() { return obtenerPropiedadInt(UI_WINDOW_WIDTH, 1200); }
-    public static int getUiWindowHeight() { return obtenerPropiedadInt(UI_WINDOW_HEIGHT, 800); }
-    public static boolean getUiWindowResizable() { return obtenerPropiedadBoolean(UI_WINDOW_RESIZABLE, true); }
-    public static boolean getUiWindowMaximized() { return obtenerPropiedadBoolean(UI_WINDOW_MAXIMIZED, false); }
-    public static String getUiTheme() { return obtenerPropiedad(UI_THEME, "light"); }
+    public static int getUiWindowWidth() {
+        return obtenerPropiedadInt(UI_WINDOW_WIDTH, 1200);
+    }
+
+    public static int getUiWindowHeight() {
+        return obtenerPropiedadInt(UI_WINDOW_HEIGHT, 800);
+    }
+
+    public static boolean getUiWindowResizable() {
+        return obtenerPropiedadBoolean(UI_WINDOW_RESIZABLE, true);
+    }
+
+    public static boolean getUiWindowMaximized() {
+        return obtenerPropiedadBoolean(UI_WINDOW_MAXIMIZED, false);
+    }
+
+    public static String getUiTheme() {
+        return obtenerPropiedad(UI_THEME, "light");
+    }
 
     // ============================================================================
     // REGLAS DE NEGOCIO
     // ============================================================================
-    public static int getBusinessMaxTicketsPerPurchase() { return obtenerPropiedadInt(BUSINESS_MAX_TICKETS, 5); }
-    public static int getBusinessCancelTimeLimit() { return obtenerPropiedadInt(BUSINESS_CANCEL_TIME, 30); }
+    public static int getBusinessMaxTicketsPerPurchase() {
+        return obtenerPropiedadInt(BUSINESS_MAX_TICKETS, 5);
+    }
+
+    public static int getBusinessCancelTimeLimit() {
+        return obtenerPropiedadInt(BUSINESS_CANCEL_TIME, 30);
+    }
 
     // ============================================================================
     // UTILIDADES

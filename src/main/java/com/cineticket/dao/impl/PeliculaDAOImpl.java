@@ -13,7 +13,8 @@ import java.util.List;
 
 public class PeliculaDAOImpl extends BaseDAO implements PeliculaDAO {
 
-    public PeliculaDAOImpl() { }
+    public PeliculaDAOImpl() {
+    }
 
     // ===================== Helpers de mapeo ENUM =====================
     private static String toDbClasificacion(Clasificacion c) {
@@ -28,8 +29,8 @@ public class PeliculaDAOImpl extends BaseDAO implements PeliculaDAO {
 
     private static Clasificacion fromDbClasificacion(String db) {
         return switch (db) {
-            case "T"   -> Clasificacion.T;
-            case "7+"  -> Clasificacion.SIETE_MAS;
+            case "T" -> Clasificacion.T;
+            case "7+" -> Clasificacion.SIETE_MAS;
             case "12+" -> Clasificacion.DOCE_MAS;
             case "15+" -> Clasificacion.QUINCE_MAS;
             case "18+" -> Clasificacion.DIECIOCHO_MAS;
@@ -41,9 +42,9 @@ public class PeliculaDAOImpl extends BaseDAO implements PeliculaDAO {
     @Override
     public Integer crear(Pelicula p) {
         String sql = """
-            INSERT INTO pelicula (titulo, duracion_minutos, clasificacion, sinopsis, imagen_url, fecha_estreno, activa)
-            VALUES (?, ?, ?::clasificacion, ?, ?, ?, ?)
-        """;
+                    INSERT INTO pelicula (titulo, duracion_minutos, clasificacion, sinopsis, imagen_url, fecha_estreno, activa)
+                    VALUES (?, ?, ?::clasificacion, ?, ?, ?, ?)
+                """;
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -118,11 +119,11 @@ public class PeliculaDAOImpl extends BaseDAO implements PeliculaDAO {
     @Override
     public boolean actualizar(Pelicula p) {
         String sql = """
-            UPDATE pelicula
-               SET titulo = ?, duracion_minutos = ?, clasificacion = ?::clasificacion,
-                   sinopsis = ?, imagen_url = ?, fecha_estreno = ?, activa = ?
-             WHERE id_pelicula = ?
-        """;
+                    UPDATE pelicula
+                       SET titulo = ?, duracion_minutos = ?, clasificacion = ?::clasificacion,
+                           sinopsis = ?, imagen_url = ?, fecha_estreno = ?, activa = ?
+                     WHERE id_pelicula = ?
+                """;
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -205,12 +206,12 @@ public class PeliculaDAOImpl extends BaseDAO implements PeliculaDAO {
     @Override
     public List<Genero> obtenerGenerosDePelicula(Integer peliculaId) {
         String sql = """
-        SELECT g.id_genero, g.nombre_genero, g.descripcion, g.activo
-          FROM genero g
-          JOIN pelicula_genero pg ON g.id_genero = pg.genero_id
-         WHERE pg.pelicula_id = ?
-         ORDER BY g.nombre_genero
-    """;
+                    SELECT g.id_genero, g.nombre_genero, g.descripcion, g.activo
+                      FROM genero g
+                      JOIN pelicula_genero pg ON g.id_genero = pg.genero_id
+                     WHERE pg.pelicula_id = ?
+                     ORDER BY g.nombre_genero
+                """;
         List<Genero> lista = new ArrayList<>();
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

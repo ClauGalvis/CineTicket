@@ -17,15 +17,21 @@ import java.util.List;
  */
 public class FuncionDAOImpl extends BaseDAO implements FuncionDAO {
 
-    public FuncionDAOImpl() {}
+    public FuncionDAOImpl() {
+    }
 
     // ===== Helpers enum (BD y Java coinciden: PROGRAMADA, EN_CURSO, FINALIZADA, CANCELADA) =====
-    private static String toDbEstado(EstadoFuncion e) { return e.name(); }
-    private static EstadoFuncion fromDbEstado(String s) { return EstadoFuncion.valueOf(s); }
+    private static String toDbEstado(EstadoFuncion e) {
+        return e.name();
+    }
+
+    private static EstadoFuncion fromDbEstado(String s) {
+        return EstadoFuncion.valueOf(s);
+    }
 
     private static void validar(Funcion f) {
         if (f.getPeliculaId() == null) throw new IllegalArgumentException("peliculaId requerido");
-        if (f.getSalaId() == null)     throw new IllegalArgumentException("salaId requerido");
+        if (f.getSalaId() == null) throw new IllegalArgumentException("salaId requerido");
         if (f.getFechaHoraInicio() == null || f.getFechaHoraFin() == null)
             throw new IllegalArgumentException("fechas requeridas");
         if (!f.getFechaHoraFin().isAfter(f.getFechaHoraInicio()))
@@ -40,10 +46,10 @@ public class FuncionDAOImpl extends BaseDAO implements FuncionDAO {
     public Integer crear(Funcion f) {
         validar(f);
         String sql = """
-            INSERT INTO funcion
-              (pelicula_id, sala_id, fecha_hora_inicio, fecha_hora_fin, precio_entrada, estado)
-            VALUES (?, ?, ?, ?, ?, ?::estado_funcion)
-        """;
+                    INSERT INTO funcion
+                      (pelicula_id, sala_id, fecha_hora_inicio, fecha_hora_fin, precio_entrada, estado)
+                    VALUES (?, ?, ?, ?, ?, ?::estado_funcion)
+                """;
         try (Connection c = getConnection();
              PreparedStatement ps = c.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -118,10 +124,10 @@ public class FuncionDAOImpl extends BaseDAO implements FuncionDAO {
     @Override
     public List<Funcion> listarPorFecha(LocalDate fecha) {
         String sql = """
-            SELECT * FROM funcion
-             WHERE DATE(fecha_hora_inicio) = ?
-             ORDER BY fecha_hora_inicio
-        """;
+                    SELECT * FROM funcion
+                     WHERE DATE(fecha_hora_inicio) = ?
+                     ORDER BY fecha_hora_inicio
+                """;
         List<Funcion> list = new ArrayList<>();
         try (Connection c = getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
@@ -139,11 +145,11 @@ public class FuncionDAOImpl extends BaseDAO implements FuncionDAO {
     public boolean actualizar(Funcion f) {
         validar(f);
         String sql = """
-            UPDATE funcion SET
-              pelicula_id = ?, sala_id = ?, fecha_hora_inicio = ?, fecha_hora_fin = ?,
-              precio_entrada = ?, estado = ?::estado_funcion
-            WHERE id_funcion = ?
-        """;
+                    UPDATE funcion SET
+                      pelicula_id = ?, sala_id = ?, fecha_hora_inicio = ?, fecha_hora_fin = ?,
+                      precio_entrada = ?, estado = ?::estado_funcion
+                    WHERE id_funcion = ?
+                """;
         try (Connection c = getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
 
@@ -183,11 +189,11 @@ public class FuncionDAOImpl extends BaseDAO implements FuncionDAO {
                                                Integer funcionIdExcluir) {
         // Usamos OVERLAPS y excluimos CANCELADAS y, opcionalmente, una función dada
         String base = """
-            SELECT COUNT(*) FROM funcion
-             WHERE sala_id = ?
-               AND estado <> 'CANCELADA'::estado_funcion
-               AND (fecha_hora_inicio, fecha_hora_fin) OVERLAPS (?, ?)
-        """;
+                    SELECT COUNT(*) FROM funcion
+                     WHERE sala_id = ?
+                       AND estado <> 'CANCELADA'::estado_funcion
+                       AND (fecha_hora_inicio, fecha_hora_fin) OVERLAPS (?, ?)
+                """;
         String sql = (funcionIdExcluir != null) ? base + " AND id_funcion <> ?" : base;
 
         try (Connection c = getConnection();

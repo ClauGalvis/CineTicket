@@ -1,69 +1,129 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.cineticket.controlador.SeleccionAsientosController"
-            stylesheets="@/css/asientos.css"
-            prefWidth="900" prefHeight="620">
+            stylesheets="@../css/styles.css">
 
-    <top>
-        <VBox spacing="6">
-            <padding><Insets topRightBottomLeft="12"/></padding>
-            <children>
-                <HBox spacing="10">
-                    <children>
-                        <Label text="Selección de Asientos" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
-                        <Pane HBox.hgrow="ALWAYS"/>
-                        <Button text="Cancelar" onAction="#cancelar"/>
-                    </children>
-                </HBox>
-                <GridPane hgap="12" vgap="6">
-                    <columnConstraints>
-                        <ColumnConstraints percentWidth="12"/>
-                        <ColumnConstraints percentWidth="38"/>
-                        <ColumnConstraints percentWidth="12"/>
-                        <ColumnConstraints percentWidth="38"/>
-                    </columnConstraints>
-                    <children>
-                        <Label text="Película:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                        <Label fx:id="lblPelicula" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+    <!-- SIDEBAR IZQUIERDO -->
+    <left>
+        <VBox spacing="20" styleClass="sidebar">
+            <padding>
+                <Insets top="24" right="12" bottom="12" left="12"/>
+            </padding>
 
-                        <Label text="Sala:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-                        <Label fx:id="lblSala" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+            <!-- Logo pequeño -->
+            <ImageView fitHeight="28" preserveRatio="true">
+                <image>
+                    <Image url="@../img/logo_cinetick.png"/>
+                </image>
+            </ImageView>
 
-                        <Label text="Horario:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                        <Label fx:id="lblFuncion" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                    </children>
-                </GridPane>
-            </children>
+            <VBox spacing="8">
+                <Button text="Películas"
+                        styleClass="sidebar-button"
+                        onAction="#volverCartelera"/>
+                <Button text="Mis compras"
+                        styleClass="sidebar-button"
+                        onAction="#abrirHistorial"/>
+            </VBox>
         </VBox>
+    </left>
+
+    <!-- TOPBAR (LOGOUT) -->
+    <top>
+        <HBox alignment="CENTER_RIGHT" styleClass="topbar">
+            <padding>
+                <Insets top="12" right="18" bottom="12" left="12"/>
+            </padding>
+
+            <Button text="Cerrar sesión"
+                    styleClass="logout-button"
+                    onAction="#cerrarSesion"/>
+        </HBox>
     </top>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <center>
-        <VBox spacing="10">
-            <padding><Insets topRightBottomLeft="12"/></padding>
-            <children>
-                <Label text="Pantalla" style="-fx-alignment: center; -fx-background-color: #eee; -fx-padding: 6;"/>
-                <ScrollPane fitToWidth="true" fitToHeight="true" prefHeight="420">
-                    <content>
-                        <GridPane fx:id="gridAsientos"/>
-                    </content>
-                </ScrollPane>
-            </children>
+        <VBox spacing="16" styleClass="cartelera-main">
+            <padding>
+                <Insets top="18" right="24" bottom="24" left="24"/>
+            </padding>
+
+            <!-- Título -->
+            <Label text="Selección de asientos" styleClass="cartelera-title"/>
+
+            <!-- Tarjeta principal con mapa de asientos -->
+            <VBox spacing="14" styleClass="seat-card">
+                <Label text="Selecciona tus asientos" styleClass="detalle-section-title"/>
+
+                <!-- Info película / función -->
+                <HBox spacing="8">
+                    <Label text="Película:" styleClass="detalle-meta-label"/>
+                    <Label fx:id="lblPelicula" styleClass="detalle-meta-value"/>
+
+                    <Label text="•" styleClass="detalle-meta-separator"/>
+
+                    <Label text="Sala:" styleClass="detalle-meta-label"/>
+                    <Label fx:id="lblSala" styleClass="detalle-meta-value"/>
+
+                    <Label text="•" styleClass="detalle-meta-separator"/>
+
+                    <Label text="Horario:" styleClass="detalle-meta-label"/>
+                    <Label fx:id="lblFuncion" styleClass="detalle-meta-value"/>
+                </HBox>
+
+                <!-- Pantalla + grilla de asientos -->
+                <VBox spacing="10" alignment="CENTER">
+                    <Label text="Pantalla" styleClass="screen-label"/>
+
+                    <ScrollPane hbarPolicy="NEVER"
+                                fitToWidth="true"
+                                prefViewportHeight="260">
+                        <content>
+                            <GridPane fx:id="gridAsientos"/>
+                        </content>
+                    </ScrollPane>
+
+                    <!-- Leyenda -->
+                    <HBox spacing="14" alignment="CENTER">
+                        <HBox spacing="6" styleClass="legend-item">
+                            <Region styleClass="legend-dot-available"/>
+                            <Label text="Disponible" styleClass="legend-text"/>
+                        </HBox>
+                        <HBox spacing="6" styleClass="legend-item">
+                            <Region styleClass="legend-dot-occupied"/>
+                            <Label text="Ocupado" styleClass="legend-text"/>
+                        </HBox>
+                        <HBox spacing="6" styleClass="legend-item">
+                            <Region styleClass="legend-dot-selected"/>
+                            <Label text="Seleccionado" styleClass="legend-text"/>
+                        </HBox>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+            <!-- Tarjeta inferior: resumen y continuar -->
+            <HBox spacing="16" alignment="CENTER_RIGHT">
+                <VBox spacing="4" styleClass="seat-summary-card" HBox.hgrow="ALWAYS">
+                    <Label fx:id="lblAsientosSeleccionados"
+                           text="Asientos seleccionados: — (0/5)"/>
+                    <Label fx:id="lblTotal" text="Total: $ 0"/>
+                </VBox>
+
+                <Button text="Cancelar"
+                        onAction="#cancelar"/>
+                <Button fx:id="btnContinuar"
+                        text="Continuar"
+                        styleClass="primary-button"
+                        onAction="#continuar"/>
+            </HBox>
         </VBox>
     </center>
-
-    <bottom>
-        <HBox spacing="16">
-            <padding><Insets topRightBottomLeft="12"/></padding>
-            <children>
-                <Label fx:id="lblAsientosSeleccionados" text="Seleccionados: (0/5)"/>
-                <Pane HBox.hgrow="ALWAYS"/>
-                <Label fx:id="lblTotal" text="Total: $ 0"/>
-                <Button fx:id="btnContinuar" text="Continuar" onAction="#continuar"/>
-            </children>
-        </HBox>
-    </bottom>
 </BorderPane>

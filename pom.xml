@@ -128,24 +128,51 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
         <version>3.3.0</version>
+        <configuration>
+          <configLocation>checkstyle.xml</configLocation>
+          <failOnViolation>false</failOnViolation>
+        </configuration>
       </plugin>
 
       <plugin>
         <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
         <version>4.7.3.5</version>
+
+        <configuration>
+          <!-- No rompas el build por ahora -->
+          <failOnError>false</failOnError>
+
+          <!-- Generar también reporte HTML legible -->
+          <xmlOutput>true</xmlOutput>
+          <effort>max</effort>          <!-- análisis más profundo -->
+          <threshold>medium</threshold> <!-- no tan paranoico -->
+        </configuration>
+
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals>
+              <goal>spotbugs</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.10</version>
+        <version>0.8.12</version>
+
         <executions>
+          <!-- Instrumenta y mide cobertura al correr "mvn test" -->
           <execution>
             <goals>
               <goal>prepare-agent</goal>
             </goals>
           </execution>
+
+          <!-- Genera el reporte después de las pruebas -->
           <execution>
             <id>report</id>
             <phase>test</phase>
@@ -155,6 +182,7 @@
           </execution>
         </executions>
       </plugin>
+
     </plugins>
   </build>
 

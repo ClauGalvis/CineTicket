@@ -2,8 +2,10 @@ package com.cineticket.servicio.tools;
 
 import com.cineticket.dao.FuncionDAO;
 import com.cineticket.dao.PeliculaDAO;
+import com.cineticket.dao.GeneroDAO;
 import com.cineticket.dao.impl.FuncionDAOImpl;
 import com.cineticket.dao.impl.PeliculaDAOImpl;
+import com.cineticket.dao.impl.GeneroDAOImpl;
 import com.cineticket.modelo.Funcion;
 import com.cineticket.modelo.Pelicula;
 import com.cineticket.servicio.CarteleraService;
@@ -15,7 +17,13 @@ public class ProbarCarteleraBD {
         // DAOs reales (usan ConnectionPool y application.properties)
         PeliculaDAO peliculaDAO = new PeliculaDAOImpl();
         FuncionDAO funcionDAO   = new FuncionDAOImpl();
-        CarteleraService service = new CarteleraService(peliculaDAO, funcionDAO);
+        GeneroDAO generoDAO     = new GeneroDAOImpl();   // ← nuevo
+
+        CarteleraService service = new CarteleraService(
+                peliculaDAO,
+                funcionDAO,
+                generoDAO       // ← nuevo
+        );
 
         // 1) Cartelera completa
         List<Pelicula> activas = service.obtenerCarteleraCompleta();

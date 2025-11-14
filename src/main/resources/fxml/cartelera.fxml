@@ -1,64 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.cineticket.controlador.CarteleraController"
-            prefWidth="900" prefHeight="600">
+            stylesheets="@../css/styles.css">
+
+    <!-- SIDEBAR IZQUIERDO -->
+    <left>
+        <VBox spacing="20" styleClass="sidebar">
+            <padding>
+                <Insets top="24" right="12" bottom="12" left="12"/>
+            </padding>
+
+            <!-- Logo pequeño -->
+            <ImageView fitHeight="28" preserveRatio="true">
+                <image>
+                    <Image url="@../img/logo_cinetick.png"/>
+                </image>
+            </ImageView>
+
+            <VBox spacing="8">
+                <Button text="Películas"
+                        styleClass="sidebar-button-selected"/>
+                <Button text="Mis compras"
+                        styleClass="sidebar-button"
+                        onAction="#abrirHistorial"/>
+            </VBox>
+
+        </VBox>
+    </left>
+
+    <!-- TOPBAR (LOGOUT) -->
     <top>
-        <HBox spacing="8">
-            <padding><Insets topRightBottomLeft="10"/></padding>
-            <children>
-                <Label text="Cartelera" style="-fx-font-size: 22; -fx-font-weight: bold;" />
-                <Pane HBox.hgrow="ALWAYS" />
-                <Button fx:id="btnHistorial" text="Historial" onAction="#abrirHistorial" />
-                <Button fx:id="btnAdministrar" text="Administrar" onAction="#abrirAdministracion" visible="false" />
-                <Button fx:id="btnCerrarSesion" text="Cerrar sesión" onAction="#cerrarSesion" />
-            </children>
+        <HBox alignment="CENTER_RIGHT" styleClass="topbar">
+            <padding>
+                <Insets top="12" right="18" bottom="12" left="12"/>
+            </padding>
+
+            <Button text="Cerrar sesión"
+                    styleClass="logout-button"
+                    onAction="#cerrarSesion"/>
         </HBox>
     </top>
 
+    <!-- CONTENIDO PRINCIPAL -->
     <center>
-        <SplitPane dividerPositions="0.33">
-            <items>
-                <!-- Lista de películas -->
-                <VBox spacing="8">
-                    <padding><Insets topRightBottomLeft="10"/></padding>
-                    <children>
-                        <Label text="Películas" style="-fx-font-weight: bold;" />
-                        <ListView fx:id="listViewPeliculas" prefHeight="520" />
-                    </children>
-                </VBox>
+        <VBox spacing="16" styleClass="cartelera-main">
+            <padding>
+                <Insets top="18" right="24" bottom="24" left="24"/>
+            </padding>
 
-                <!-- Detalle + funciones -->
-                <VBox spacing="8">
-                    <padding><Insets topRightBottomLeft="10"/></padding>
-                    <children>
-                        <HBox spacing="12">
-                            <children>
-                                <ImageView fx:id="imgPelicula" fitWidth="200" fitHeight="300"
-                                           preserveRatio="true" smooth="true" />
-                                <VBox spacing="6">
-                                    <children>
-                                        <Label fx:id="lblTituloPelicula" style="-fx-font-size: 18; -fx-font-weight: bold;" />
-                                        <Label fx:id="lblClasificacion" />
-                                        <Label fx:id="lblDuracion" />
-                                        <Label text="Sinopsis" style="-fx-font-weight: bold;" />
-                                        <TextArea fx:id="txtSinopsis" editable="false" wrapText="true" prefRowCount="6" />
-                                    </children>
-                                </VBox>
-                            </children>
-                        </HBox>
+            <Label text="Películas en cartelera" styleClass="cartelera-title"/>
 
-                        <Label text="Funciones" style="-fx-font-weight: bold;" />
-                        <ListView fx:id="listViewFunciones" prefHeight="220" />
-                        <Button fx:id="btnSeleccionarFuncion" text="Seleccionar Función"
-                                onAction="#manejarSeleccionFuncion" />
-                    </children>
-                </VBox>
-            </items>
-        </SplitPane>
+            <!-- GRID de tarjetas -->
+            <ScrollPane hbarPolicy="NEVER"
+                        fitToWidth="true"
+                        styleClass="cartelera-scroll">
+                <content>
+                    <FlowPane fx:id="gridPeliculas"
+                              hgap="24"
+                              vgap="24"
+                              prefWrapLength="900"
+                              styleClass="pelicula-grid"/>
+                </content>
+            </ScrollPane>
+
+
+        </VBox>
     </center>
 </BorderPane>

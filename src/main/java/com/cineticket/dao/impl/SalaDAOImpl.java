@@ -14,7 +14,8 @@ import java.util.List;
  */
 public class SalaDAOImpl extends BaseDAO implements SalaDAO {
 
-    public SalaDAOImpl() {}
+    public SalaDAOImpl() {
+    }
 
     @Override
     public Integer crear(Sala s) {
@@ -25,9 +26,9 @@ public class SalaDAOImpl extends BaseDAO implements SalaDAO {
         s.setCapacidadTotal(capacidad);
 
         String sql = """
-            INSERT INTO sala (nombre_sala, capacidad_total, filas, columnas, activa)
-            VALUES (?, ?, ?, ?, ?)
-        """;
+                    INSERT INTO sala (nombre_sala, capacidad_total, filas, columnas, activa)
+                    VALUES (?, ?, ?, ?, ?)
+                """;
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -101,10 +102,10 @@ public class SalaDAOImpl extends BaseDAO implements SalaDAO {
         s.setCapacidadTotal(capacidad);
 
         String sql = """
-            UPDATE sala
-               SET nombre_sala = ?, capacidad_total = ?, filas = ?, columnas = ?, activa = ?
-             WHERE id_sala = ?
-        """;
+                    UPDATE sala
+                       SET nombre_sala = ?, capacidad_total = ?, filas = ?, columnas = ?, activa = ?
+                     WHERE id_sala = ?
+                """;
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 

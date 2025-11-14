@@ -17,15 +17,16 @@ import java.util.Optional;
 public class UsuarioDAOImpl extends BaseDAO implements UsuarioDAO {
 
     // Constructor sin dependencias (pool es estático)
-    public UsuarioDAOImpl() { }
+    public UsuarioDAOImpl() {
+    }
 
     @Override
     public void crear(Usuario usuario) {
         String sql = """
-            INSERT INTO usuario (nombre_completo, correo_electronico, nombre_usuario,
-                                 contrasena_hash, rol, fecha_registro, activo)
-            VALUES (?, ?, ?, ?, ?::rol, ?, ?)
-        """;
+                    INSERT INTO usuario (nombre_completo, correo_electronico, nombre_usuario,
+                                         contrasena_hash, rol, fecha_registro, activo)
+                    VALUES (?, ?, ?, ?, ?::rol, ?, ?)
+                """;
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -109,11 +110,11 @@ public class UsuarioDAOImpl extends BaseDAO implements UsuarioDAO {
     @Override
     public void actualizar(Usuario usuario) {
         String sql = """
-            UPDATE usuario
-               SET nombre_completo = ?, correo_electronico = ?, nombre_usuario = ?,
-                   contrasena_hash = ?, rol = ?::rol, activo = ?
-             WHERE id_usuario = ?
-        """;
+                    UPDATE usuario
+                       SET nombre_completo = ?, correo_electronico = ?, nombre_usuario = ?,
+                           contrasena_hash = ?, rol = ?::rol, activo = ?
+                     WHERE id_usuario = ?
+                """;
 
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

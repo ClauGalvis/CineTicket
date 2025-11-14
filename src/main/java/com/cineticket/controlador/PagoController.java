@@ -165,23 +165,30 @@ public class PagoController {
             );
 
             // Simulación de pago ok
-            if (!procesarPago()) return;
+            if (!procesarPago()) {
+                return;
+            }
 
-            // Persistir todo y generar PDF interno
+            // Persistir compra (POR AHORA sin generar PDF aquí)
             Integer compraId = compraService.confirmarCompra(preparada);
-            String rutaPDF = compraService.generarComprobante(compraId);
 
-            // Guardar una copia donde el usuario elija
-            generarYGuardarComprobante(rutaPDF);
-
-            mostrarConfirmacion(rutaPDF);
+            // Limpiamos datos temporales
             SelectedData.clear();
-            UiRouter.go((Node) e.getSource(), "/fxml/cartelera.fxml");
+
+            // Mensaje breve
+            alerta(Alert.AlertType.INFORMATION,
+                    "¡Compra confirmada!\n\n" +
+                            "Puedes consultar el detalle y generar/ver tu comprobante " +
+                            "desde la sección 'Mis compras'.");
+
+            // Redirigir a historial de compras
+            UiRouter.go((Node) e.getSource(), "/fxml/historial.fxml");
 
         } catch (Exception ex) {
             alerta(Alert.AlertType.ERROR, "No se pudo completar la compra.\n" + ex.getMessage());
         }
     }
+
 
     @FXML
     private void cancelar(ActionEvent e) {
@@ -192,6 +199,11 @@ public class PagoController {
         if (resp.isPresent() && resp.get() == ButtonType.YES) {
             UiRouter.go((Node) e.getSource(), "/fxml/cartelera.fxml");
         }
+    }
+
+    @FXML
+    public void abrirHistorial(ActionEvent e) {
+        UiRouter.go((Node) e.getSource(), "/fxml/historial.fxml");
     }
 
     // === Helpers ===

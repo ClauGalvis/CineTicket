@@ -8,31 +8,27 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Confitería (mínimo para el flujo principal). */
+/** Confitería con tarjetas tipo mockup. */
 public class ConfiteriaController {
 
-    @FXML private ListView<ComboConfiteria> listViewCombos;
-    @FXML private Label lblNombreCombo;
-    @FXML private Label lblDescripcion;
-    @FXML private Label lblPrecio;
-    @FXML private ImageView imgCombo;
-
-    @FXML private Spinner<Integer> spinnerCantidad;
-    @FXML private Button btnAgregar;
-
-    @FXML private ListView<String> listViewCarrito; // mostramos líneas legibles
+    @FXML private FlowPane gridCombos;
+    @FXML private ListView<String> listViewCarrito;
     @FXML private Label lblTotalConfiteria;
-
     @FXML private Button btnContinuar;
 
     private final ConfiteriaService confiteriaService = AppContext.getConfiteriaService();
@@ -45,69 +41,101 @@ public class ConfiteriaController {
 
     @FXML
     public void initialize() {
-        cargarCombos();
+        cargarTarjetasCombos();
 
-        SpinnerValueFactory<Integer> vf = new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, 1);
-        spinnerCantidad.setValueFactory(vf);
+        listViewCarrito.setItems(carritoTexto);
 
-        listViewCombos.getSelectionModel().selectedItemProperty().addListener((obs, old, combo) -> {
-            if (combo != null) manejarSeleccionCombo(combo);
-        });
-
-        listViewCombos.setCellFactory(ignored -> new ListCell<>() {
-            @Override protected void updateItem(ComboConfiteria c, boolean empty) {
-                super.updateItem(c, empty);
-                setText(empty || c == null ? "" : c.getNombreCombo());
+        // Doble clic en el resumen para eliminar un ítem del carrito
+        listViewCarrito.setOnMouseClicked(ev -> {
+            if (ev.getClickCount() == 2) {
+                int idx = listViewCarrito.getSelectionModel().getSelectedIndex();
+                if (idx >= 0 && idx < carrito.size()) {
+                    Integer comboId = carrito.keySet().stream().toList().get(idx);
+                    carrito.remove(comboId);
+                    actualizarCarrito();
+                }
             }
         });
 
-        if (!listViewCombos.getItems().isEmpty()) {
-            listViewCombos.getSelectionModel().selectFirst();
-        }
-
-        listViewCarrito.setItems(carritoTexto);
         actualizarCarrito();
     }
 
-    private void cargarCombos() {
+    private void cargarTarjetasCombos() {
+        gridCombos.getChildren().clear();
         List<ComboConfiteria> combos = confiteriaService.obtenerCombosDisponibles();
-        listViewCombos.setItems(FXCollections.observableArrayList(combos));
-    }
 
-    private void manejarSeleccionCombo(ComboConfiteria combo) {
-        mostrarDetalleCombo(combo);
-    }
-
-    private void mostrarDetalleCombo(ComboConfiteria c) {
-        lblNombreCombo.setText(nullSafe(c.getNombreCombo(), "(Sin nombre)"));
-        lblDescripcion.setText(nullSafe(c.getDescripcion(), "Sin descripción."));
-        lblPrecio.setText("$ " + (c.getPrecio() == null ? "0" : c.getPrecio().toPlainString()));
-
-        String url = c.getImagenUrl();
-        Image img;
-        try {
-            if (url != null && !url.isBlank()) img = new Image(url, true);
-            else img = new Image(DEFAULT_COMBO_IMG, true);
-        } catch (Exception ex) {
-            img = new Image(DEFAULT_COMBO_IMG, true);
+        for (ComboConfiteria combo : combos) {
+            Node card = crearTarjetaCombo(combo);
+            gridCombos.getChildren().add(card);
         }
-        imgCombo.setImage(img);
     }
 
-    @FXML
-    private void agregarAlCarrito(ActionEvent e) {
-        ComboConfiteria seleccionado = listViewCombos.getSelectionModel().getSelectedItem();
-        if (seleccionado == null) return;
+    /** Crea una tarjetita tipo mockup para un combo. */
+    private Node crearTarjetaCombo(ComboConfiteria c) {
+        VBox card = new VBox(8);
+        card.getStyleClass().add("combo-card");
+        card.setPadding(new Insets(10));
 
-        int cant = spinnerCantidad.getValue() == null ? 1 : spinnerCantidad.getValue();
-        carrito.merge(seleccionado.getIdCombo(), cant, Integer::sum);
-        actualizarCarrito();
-    }
+        // Imagen
+        ImageView img = new ImageView();
+        img.setFitWidth(220);
+        img.setFitHeight(120);
+        img.setPreserveRatio(true);
 
-    private void removerDelCarrito(Integer comboId) {
-        if (comboId == null) return;
-        carrito.remove(comboId);
-        actualizarCarrito();
+        try {
+            String url = c.getImagenUrl();
+            if (url != null && !url.isBlank()) {
+                img.setImage(new Image(url, true));
+            } else {
+                img.setImage(new Image(DEFAULT_COMBO_IMG));
+            }
+        } catch (Exception ex) {
+            img.setImage(new Image(DEFAULT_COMBO_IMG));
+        }
+
+        // Título, descripción y precio
+        Label lblNombre = new Label(nullSafe(c.getNombreCombo(), "(Sin nombre)"));
+        lblNombre.getStyleClass().add("combo-title");
+
+        Label lblDesc = new Label(nullSafe(c.getDescripcion(), ""));
+        lblDesc.getStyleClass().add("combo-desc");
+        lblDesc.setWrapText(true);
+
+        Label lblPrecio = new Label("$ " + (c.getPrecio() == null
+                ? "0"
+                : c.getPrecio().toPlainString()));
+        lblPrecio.getStyleClass().add("combo-price");
+
+        // Controles de cantidad + botón
+        Spinner<Integer> spinner = new Spinner<>();
+        SpinnerValueFactory<Integer> vf =
+                new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 10, 0);
+        spinner.setValueFactory(vf);
+        spinner.setPrefWidth(70);
+
+        Label lblCant = new Label("Cant:");
+        lblCant.getStyleClass().add("detalle-meta-label");
+
+        Button btnAgregar = new Button("Agregar");
+        btnAgregar.getStyleClass().add("primary-button");
+
+        btnAgregar.setOnAction(ev -> {
+            Integer comboId = c.getIdCombo();
+            int cant = spinner.getValue() == null ? 0 : spinner.getValue();
+
+            if (cant <= 0) {
+                carrito.remove(comboId);          // 0 = quitar del carrito
+            } else {
+                carrito.put(comboId, cant);       // actualizar cantidad exacta
+            }
+            actualizarCarrito();
+        });
+
+        HBox controls = new HBox(8, lblCant, spinner, btnAgregar);
+        controls.setAlignment(Pos.CENTER_LEFT);
+
+        card.getChildren().addAll(img, lblNombre, lblDesc, lblPrecio, controls);
+        return card;
     }
 
     private void actualizarCarrito() {
@@ -124,16 +152,9 @@ public class ConfiteriaController {
         }
 
         lblTotalConfiteria.setText("Total confitería: $ " + total.toPlainString());
-
-        listViewCarrito.setOnMouseClicked(ev -> {
-            if (ev.getClickCount() == 2) {
-                int idx = listViewCarrito.getSelectionModel().getSelectedIndex();
-                if (idx >= 0 && idx < carrito.size()) {
-                    Integer comboId = carrito.keySet().stream().toList().get(idx);
-                    removerDelCarrito(comboId);
-                }
-            }
-        });
+        if (btnContinuar != null) {
+            btnContinuar.setDisable(carrito.isEmpty());
+        }
     }
 
     @FXML
@@ -147,12 +168,32 @@ public class ConfiteriaController {
         UiRouter.go((Node) e.getSource(), "/fxml/pago.fxml");
     }
 
+    // --- navegación sidebar / topbar ---
+
+    @FXML
+    private void volverCartelera(ActionEvent e) {
+        UiRouter.go((Node) e.getSource(), "/fxml/cartelera.fxml");
+    }
+
+    @FXML
+    private void abrirHistorial(ActionEvent e) {
+        UiRouter.go((Node) e.getSource(), "/fxml/historial.fxml");
+    }
+
+    @FXML
+    private void cerrarSesion(ActionEvent e) {
+        UiRouter.go((Node) e.getSource(), "/fxml/login.fxml");
+    }
+
+    // --- helpers ---
+
     private void mostrarAlerta(String msg) {
         Alert a = new Alert(Alert.AlertType.WARNING);
         a.setHeaderText("Confitería obligatoria");
         a.setContentText(msg);
         a.showAndWait();
     }
+
 
 
     private static String nullSafe(String s, String def) {
